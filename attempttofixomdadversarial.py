@@ -144,7 +144,7 @@ def OMD_for_bandits(regularizer, time_horizon, number_of_arms, loss_function, nu
                     or just not touch it
                     """
         
-        return estimated_loss_vector
+        return estimated_loss_vector 
 
 class AdversarialEnvironment:
     def __init__(self, number_of_arms):
@@ -167,6 +167,18 @@ number_of_arms = 10
 T = 100000
 number_of_simulations = 10000
 temp_regularizer = 5
+
+"""
+how regret was calculated in exp3 -> should be like identical in omd but now we're using losses
+instead of rewards (so like 1-rewards)
+"""
+# for t in range(n_rounds):
+#     chosen_arm = exp3.select_arm()
+#     reward = adversary.assign_reward(chosen_arm)
+#     exp3.update(chosen_arm, reward)
+#     cumulative_reward += reward
+#     optimal_reward = (t + 1) * 0.7
+#     regret.append(optimal_reward - cumulative_reward)
 
 loss_function = AdversarialEnvironment(number_of_arms)
 
