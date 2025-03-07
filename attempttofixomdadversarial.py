@@ -118,14 +118,17 @@ def OMD_for_bandits(regularizer, time_horizon, number_of_arms, loss_function, nu
             #action to take
             loss_from_action = loss_function.getLoss(action_chosen) #find loss from that action
             #(finding loss also requires using helpers but those arr defined later below)
+            #loss from action should be an array of actual losses we got 
 
             for arm in range(number_of_arms): #update estimated loss vector after the round
                 if arm == action_chosen: #for the arm chosen we go through the process of using importance
                     #weighted estimators to update our loss estimate
                     old_loss_estimate = estimated_loss_vector[arm] #store our loss estimate of the arm
                     loss_estimate_of_arm = estimated_loss_vector[arm] / probability_distribution[arm] #this is finding new loss estimate
+                    #we should use our actual loss here -> observed loss is just 0 or 1 (depending on if we chose it or not)
                     updated_loss_estimate = old_loss_estimate + loss_estimate_of_arm #we take the new and add it to the old
-                    #to update the total loss estimate
+                    #to update the total loss estimate -> aggregate loss is like the addition of each loss vector
+                    #from all the rounds
                     estimated_loss_vector.append(updated_loss_estimate) #value is added to loss estimate
                     """problem here could be something about the fact that we are just adding the updated loss estimate
                     instead of like fr updating its value so this is something that needs to get fixed ->
@@ -145,7 +148,7 @@ def OMD_for_bandits(regularizer, time_horizon, number_of_arms, loss_function, nu
                     """
         
         return estimated_loss_vector 
-
+ 
 class AdversarialEnvironment:
     def __init__(self, number_of_arms):
         self.number_of_arms = number_of_arms
