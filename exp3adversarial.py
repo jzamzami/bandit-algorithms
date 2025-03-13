@@ -24,25 +24,39 @@ class Exp3: #class for our exp3 algortihm -> class lets us have constructors so 
         self.weights = []
 
     def initialize(self, n_arms): 
-        self.weights = [1.0 for _ in range(n_arms)] #initializes the weights for the arms to be 1
+        # self.weights = [1.0 for _ in range(n_arms)] #initializes the weights for the arms to be 1
+        for arm in range(n_arms):
+            self.weights.append(1.0)
 
     def select_arm(self): #function for selecting arms
         n_arms = len(self.weights) #the total number of arms should be the same as the length
         #of our weights array/vector
         total_weight = sum(self.weights) #total weight is the sum of the array
-        probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
-                (self.learning_rate / n_arms) for arm in range(n_arms)] #calculating the 
+        # probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
+        #         (self.learning_rate / n_arms) for arm in range(n_arms)] #calculating the 
         #probability of selective a certain arm 
+        probs = []
+        for arm in range(n_arms): #list comprehension getting obliterated 
+            update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
+            probs.append(update_rule_for_arm)
         return categorical_draw(probs) #based on this probability we sample an action
 
     def update(self, chosen_arm, reward): #function for updating our array of reward estimators
         #here we taken in the arm the agent chose and the reward sampled which we need for our update
         n_arms = len(self.weights) #once again the number of arms should be the same
         total_weight = sum(self.weights) #also total weight calculation doesnt change
-        probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
-                (self.learning_rate / n_arms) for arm in range(n_arms)] #same formula for 
+        # probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
+        #         (self.learning_rate / n_arms) for arm in range(n_arms)] #same formula for 
         #calculating probability again
-        x = reward / probs[chosen_arm] if probs[chosen_arm] > 0 else 0 #reward estimator
+        probs = []
+        for arm in range(n_arms): #list comprehension getting obliterated again
+            update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
+            probs.append(update_rule_for_arm) 
+        # x = reward / probs[chosen_arm] if probs[chosen_arm] > 0 else 0 #reward estimator
+        if probs[chosen_arm] > 0:
+            x = reward / probs[chosen_arm]
+        else: #dont return anything (like update losses) if arm isn't chosen
+            0
         growth_factor = math.exp((self.learning_rate / n_arms) * x) #growth factor
         self.weights[chosen_arm] *= growth_factor #updating based off of the growth factor
 
