@@ -5,15 +5,36 @@ import matplotlib.pyplot as plt
 #just importing libraries lol
 
 #helper function that helps us choose a distribution to sample our actions from
-def categorical_draw(probs): #takes in probabilities 
-    z = random.random() #generates floating point number between 0 and 1
-    cum_prob = 0.0 #initialize floating point number as 0 for our probability
-    for i in range(len(probs)): #iterate through our probabilities 
-        prob = probs[i] #our probability is an element of the array
-        cum_prob += prob #also keep track of cumulative probability and add our current probability
-        if cum_prob > z: #if our cummulative probability is greater than the random number generated
-            return i #then we return its position
-    return len(probs) - 1 #decrement the length of our probability array
+# def categorical_draw(probs): #takes in probabilities 
+#     """
+#     helper function to fr draw an arm based on our probabilities
+#     arguments: probability array thats returned by our algo
+#     returns decremented array bc now we're considering one less arm 
+#     """
+#     z = random.random() #generates floating point number between 0 and 1
+#     cum_prob = 0.0 #initialize floating point number as 0 for our probability
+#     for i in range(len(probs)): #iterate through our probabilities 
+#         prob = probs[i] #our probability is an element of the array
+#         cum_prob += prob #also keep track of cumulative probability and add our current probability
+#         if cum_prob > z: #if our cummulative probability is greater than the random number generated
+#             return i #then we return its position
+#     return len(probs) - 1 #decrement the length of our probability array
+
+def categorical_draw(probs):
+    """ helper function for pulling an arm after finding the probability distribution(the
+    weights for all arms)
+    arguments: 1) probabilities_of_choosing_arms = list of each arm's probability of being pulled
+    after running the EXP3 algorithm
+    returns the arm (index of arm) we're gonna pull
+    """
+    choice = random.uniform(0, sum((probs))) #generates random choice from our 
+    choiceIndex = 0
+
+    for probability_of_arm in (probs):
+        choice -= probability_of_arm
+        if choice <= 0:
+            return choiceIndex
+        choiceIndex += 1
 
 
 class Exp3: #class for our exp3 algortihm -> class lets us have constructors so makes 
@@ -79,7 +100,7 @@ random.seed(1)
 np.random.seed(1)
 
 n_arms = 10
-n_rounds = 50000
+n_rounds = 1000000
 learning_rate = 0.01
 
 adversary = AdversarialEnvironment(n_arms)

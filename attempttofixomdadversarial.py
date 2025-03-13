@@ -77,7 +77,7 @@ def newtons_approximation_for_arm_weights(normalization_factor, estimated_loss_v
             break
         else: #if not just continue repeating calculations
             continue
-    return weights_for_arms #return our weights for arms
+    return weights_for_arms, normalization_factor #return our weights for arms
 
 """possible issue here (could be misunderstanding the logic of this algorithm tho)
     is that we keep finding normalization factors but we're not really using them in further iterations
@@ -108,7 +108,7 @@ def OMD_for_bandits(regularizer, time_horizon, number_of_arms, loss_function, nu
             estimated_loss_vector.append(0.0) #anyways initialize each arms estimate to be 0
 
         for round in range(time_horizon): #iterating through number of rounds in our time horizon
-            probability_distribution = newtons_approximation_for_arm_weights(normalization_factor, 
+            probability_distribution, normalization_factor = newtons_approximation_for_arm_weights(normalization_factor, 
             estimated_loss_vector, learning_rate) #find probability distribution using helper function
             """something is definitely wrong with the newton's approximation method because the same graph
             generates no matter what the normalization factor is like 0 and 500 yield almost the same results
@@ -146,9 +146,9 @@ def OMD_for_bandits(regularizer, time_horizon, number_of_arms, loss_function, nu
                     again for example and updating each value then this would have to add 0 to our og value
                     or just not touch it
                     """
-        
         return estimated_loss_vector 
- 
+
+
 class AdversarialEnvironment:
     def __init__(self, number_of_arms):
         self.number_of_arms = number_of_arms
