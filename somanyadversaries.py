@@ -227,7 +227,7 @@ for t in range(n_rounds):
     optimal_reward = (t + 1) * 0.7
     regret.append(optimal_reward - cumulative_reward)
 
-plt.plot(ugly_graph_omd_regrets, label='OMD_for_bandits', color='blue')
+plt.plot(ugly_graph_omd_regrets, label='OMD_for_bandits method', color='blue')
 plt.plot(omd_regrets, label='OMD Class', color='red')
 plt.plot(regret, label="EXP3 Regret", color ="green")
 plt.xlabel('Round')
