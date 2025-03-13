@@ -75,7 +75,7 @@ class AdversarialEnvironment:
 
 learning_rate = 0.01
 number_of_arms = 10
-T = 100000 
+T = 100000
 loss_function = AdversarialEnvironment(number_of_arms)
 omd = OMD(number_of_arms, learning_rate)
 
