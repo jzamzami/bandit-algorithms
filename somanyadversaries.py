@@ -103,9 +103,10 @@ class OMD:
         self.estimated_loss_vector = [0.0] * number_of_arms
 
     def select_arm(self):
-        sum_weights = sum(self.weights)
-        probabilities = [w / sum_weights for w in self.weights]
-        return drawArm(probabilities)
+        self.weights, self.normalization_factor = newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        probabilites_of_arms = self.weights
+        action_chosen = drawArm(probabilites_of_arms)
+        return action_chosen
 
     def update(self, chosen_arm, loss):
         if self.weights[chosen_arm] > 0:
