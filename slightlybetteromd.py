@@ -43,12 +43,13 @@ class OMD:
         self.estimated_loss_vector = [0.0] * number_of_arms
 
     def select_arm(self):
-        sum_weights = sum(self.weights)
-        probabilities = []
-        for w in self.weights:
-            probability = w/sum_weights
-            probabilities.append(probability)
-        return drawArm(probabilities)
+        # sum_weights = sum(self.weights)
+        # probabilities = []
+        # for w in self.weights:
+        #     probability = w /sum_weights
+        #     probabilities.append(probability)
+        # return drawArm(probabilities)
+        pass
 
     def update(self, chosen_arm, loss):
         if self.weights[chosen_arm] > 0:
