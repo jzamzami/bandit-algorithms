@@ -49,8 +49,11 @@ class OMD:
         #     probability = w /sum_weights
         #     probabilities.append(probability)
         # return drawArm(probabilities)
-        pass
-
+        self.weights, self.normalization_factor = newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        probabilites_of_arms = self.weights
+        action_chosen = drawArm(probabilites_of_arms)
+        return action_chosen
+    
     def update(self, chosen_arm, loss):
         if self.weights[chosen_arm] > 0:
             x = loss / self.weights[chosen_arm]
