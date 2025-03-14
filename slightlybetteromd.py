@@ -83,18 +83,21 @@ class AdversarialEnvironment:
 learning_rate = 0.01
 number_of_arms = 10
 T = 100000
+# simulations = 1000
+
 loss_function = AdversarialEnvironment(number_of_arms)
 omd = OMD(number_of_arms, learning_rate)
 
 regrets = []
 cumulative_loss = 0
 
+# for simulation in range(simulations):
 for t in range(T):
     chosen_arm = omd.select_arm()
     loss = loss_function.getLoss(chosen_arm)
     cumulative_loss += loss
     omd.update(chosen_arm, loss)
-    
+        
     optimal_loss = (t + 1) * 0.3
     regrets.append(cumulative_loss - optimal_loss)
 
