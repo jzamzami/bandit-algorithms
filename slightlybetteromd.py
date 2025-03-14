@@ -44,7 +44,10 @@ class OMD:
 
     def select_arm(self):
         sum_weights = sum(self.weights)
-        probabilities = [w / sum_weights for w in self.weights]
+        probabilities = []
+        for w in self.weights:
+            probability = w/sum_weights
+            probabilities.append(probability)
         return drawArm(probabilities)
 
     def update(self, chosen_arm, loss):
