@@ -27,8 +27,7 @@ def categorical_draw(probs):
     after running the EXP3 algorithm
     returns the arm (index of arm) we're gonna pull
     """
-    choice = random.uniform(0, sum((probs))) #generating random number from 0 to the sum of our
-    #probabilities ->
+    choice = random.uniform(0, sum((probs)))
     choiceIndex = 0
 
     for probability_of_arm in (probs):
