@@ -42,12 +42,12 @@ class Exp3: #class for our exp3 algortihm -> class lets us have constructors so 
     def __init__(self, learning_rate): #initializing our learning which affects how much we 
         #explore/exploit and also array/vector for our reward estimators 
         self.learning_rate = learning_rate
-        self.weights = []
+        self.weights = [1.0] * n_arms
 
-    def initialize(self, n_arms): 
-        # self.weights = [1.0 for _ in range(n_arms)] #initializes the weights for the arms to be 1
-        for arm in range(n_arms):
-            self.weights.append(1.0)
+    # def initialize(self, n_arms): 
+    #     # self.weights = [1.0 for _ in range(n_arms)] #initializes the weights for the arms to be 1
+    #     for arm in range(n_arms):
+    #         self.weights.append(1.0)
 
     def select_arm(self): #function for selecting arms
         n_arms = len(self.weights) #the total number of arms should be the same as the length
@@ -111,7 +111,7 @@ learning_rate = 0.01
 
 adversary = AdversarialEnvironment(n_arms)
 exp3 = Exp3(learning_rate)
-exp3.initialize(n_arms)
+# exp3.initialize(n_arms)
 
 regret = []
 cumulative_reward = 0

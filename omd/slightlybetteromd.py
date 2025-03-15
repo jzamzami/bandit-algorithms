@@ -13,16 +13,34 @@ def drawArm(probabilities_of_choosing_arms):
         choiceIndex += 1
 
 class OMD:
-    def __init__(self, number_of_arms, learning_rate, regularizer):
-        self.number_of_arms = number_of_arms
+    def __init__(self, learning_rate, regularizer):
         self.learning_rate = learning_rate
         self.regularizer = regularizer
-        self.weights = [1.0] * number_of_arms
+        self.weights = []
         self.normalization_factor = 10
-        self.estimated_loss_vector = [0.0] * number_of_arms
+        self.estimated_loss_vector = []
         
-    def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate, number_of_iterations = 100):
-        weights_for_arms = []
+    def initialize_arm_weights(self, number_of_arms):
+        for arm in range(number_of_arms):
+            self.weights.append(1.0)
+        return self.weights
+            
+    def initialize_loss_vector(self, number_of_arms):
+        for arm in range(number_of_arms):
+            self.estimated_loss_vector.append(0.0)
+        return self.estimated_loss_vector
+        
+    def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
+        # weights_for_arms = self.weights
+        """another bug is that weights_for_arms is initialized as an empty array every time newton's method function is called
+        instead and whats happening is that we break out of the for loop super early because the difference in normalization factors
+        converges quick (which at this point is probably also smth im also doing wrong), so what i mean to say is that by the end of like
+        one or two iterations our weights_for_arms only has like 1 or 2 elements instead of having number of elements == number of arms, but 
+        when i set weights_for_arms to be equal to self.weights i get an index out of bounds error, associated with line 104:
+        self.history[chosen_arm] += 1 -> IndexError: index 16 is out of bounds for axis 0 with size 10, i kind of have a vague idea of what to fix
+        because i dont think that self.history should ever reach an index 16 in the first place?? but yeah this is another thing that needs fixing
+        (im so sorry again)"""
+        weights_for_arms = [] #i also know this is wrong but its just for the code to run :(
         epsilon = 0.000001
         sum_of_weights = 0
         for arm in range(len(estimated_loss_vector)):
@@ -46,7 +64,7 @@ class OMD:
             numerator = sum_of_weights - 1
             denominator = learning_rate * math.pow(sum_of_weights, 3/2)
             updated_normalization_factor = normalization_factor - (numerator / denominator)
-            difference_in_normalization_factors = updated_normalization_factor - normalization_factor
+            difference_in_normalization_factors = abs(updated_normalization_factor - normalization_factor)
             if(difference_in_normalization_factors < epsilon):
                 break
             else:
@@ -68,7 +86,7 @@ class OMD:
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         if self.weights[chosen_arm] > 0:
             new_loss_estimate = loss / self.weights[chosen_arm]
-            # self.estimated_loss_vector[chosen_arm] += new_loss_estimate 
+            # self.estimated_loss_vector[chosen_arm] += new_loss_estimate
             """other problem here is that adding the new loss estimate causes a ValueError: math domain error which has
             to do with line 30: exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2), this line
             i think is already problematic since it's like giving weirdly huge numbers which is also giving us huge
@@ -77,7 +95,7 @@ class OMD:
             is unbelievably weird so its not like thats the solution, it probably would cause an error with other non-zero
             normalization factors which is not ideal), but i think this should be the correct way of updating the loss estimates
             unless im really missing smth"""
-            self.estimated_loss_vector[chosen_arm] += loss #this line works but i know is logically incorrect :(
+            self.estimated_loss_vector[chosen_arm] += loss #this line works but i know is logically incorrect and is only here so the code can run :(
         else:
             new_loss_estimate = 0
             self.estimated_loss_vector[chosen_arm] += new_loss_estimate
@@ -109,7 +127,9 @@ simulations = 1
 
 for simulation in range(simulations):
     loss_function = AdversarialEnvironment(number_of_arms)
-    omd = OMD(number_of_arms, learning_rate, regularizer)
+    omd = OMD(learning_rate, regularizer)
+    omd.initialize_arm_weights(number_of_arms)
+    omd.initialize_loss_vector(number_of_arms)
     regrets = []
     cumulative_loss = 0
 
