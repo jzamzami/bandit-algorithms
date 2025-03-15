@@ -32,7 +32,7 @@ class OMD:
         
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         # weights_for_arms = self.weights
-        """another bug is that weights_for_arms is initialized as an empty array every time newton's method function is called
+        """another bug is that weights_for_arms is initialized as an empty list every time newton's method function is called
         instead and whats happening is that we break out of the for loop super early because the difference in normalization factors
         converges quick (which at this point is probably also smth im also doing wrong), so what i mean to say is that by the end of like
         one or two iterations our weights_for_arms only has like 1 or 2 elements instead of having number of elements == number of arms, but 
@@ -101,6 +101,9 @@ class OMD:
             self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
 class AdversarialEnvironment:
+    """probably need to change something with how we're finding the history and losses
+    because things also are not adding up here :D (i think its mainly a problem with the
+    size of the lists bc line 113 is whats causing an index out of bounds error)"""
     def __init__(self, number_of_arms):
         self.number_of_arms = number_of_arms
         self.history = np.zeros(number_of_arms)
