@@ -126,7 +126,7 @@ learning_rate = 0.01
 number_of_arms = 10
 T = 100000
 regularizer = 10
-simulations = 1
+simulations = 30
 
 for simulation in range(simulations):
     loss_function = AdversarialEnvironment(number_of_arms)
