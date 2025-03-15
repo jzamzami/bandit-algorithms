@@ -37,7 +37,10 @@ class OMD:
             why because im just following the algorithm, only thing i can think of is that its 
             (4*inner product)^-2 and not 4(inner product)^-2 but that doesn't really make sense 
             because i feel like it's pretty clear from the pseudocode in the paper that it should 
-            be the second choice"""
+            be the second choice: what's happening here is that i'm getting inner product to be -0.1 (or 
+            0.1 if i had abs which i did but it didnt really make a difference) and then exponent of
+            inner product is 100 so the weight becomes 400, and then for the initial normalization factor
+            of 0 the weight is an even larger value"""
             for arm_weight in range(len(weights_for_arms)):
                 sum_of_weights += weights_for_arms[arm_weight]
             numerator = sum_of_weights - 1
