@@ -1,2 +1,2 @@
 # bandit-algorithms
-yea
+code for different implementations of bandit algorithms
