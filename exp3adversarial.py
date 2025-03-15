@@ -61,7 +61,8 @@ class Exp3: #class for our exp3 algortihm -> class lets us have constructors so 
         for arm in range(n_arms): #list comprehension getting obliterated 
             update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
             probs.append(update_rule_for_arm)
-        return categorical_draw(probs) #based on this probability we sample an action
+        action_chosen = categorical_draw(probs)
+        return action_chosen #based on this probability we sample an action
 
     def update(self, chosen_arm, reward): #function for updating our array of reward estimators
         #here we taken in the arm the agent chose and the reward sampled which we need for our update
@@ -73,13 +74,13 @@ class Exp3: #class for our exp3 algortihm -> class lets us have constructors so 
         probs = []
         for arm in range(n_arms): #list comprehension getting obliterated again
             update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
-            probs.append(update_rule_for_arm) 
+            probs.append(update_rule_for_arm)
         # x = reward / probs[chosen_arm] if probs[chosen_arm] > 0 else 0 #reward estimator
         if probs[chosen_arm] > 0:
-            x = reward / probs[chosen_arm]
+            reward_estimate = reward / probs[chosen_arm]
         else: #dont return anything (like update losses) if arm isn't chosen
             0
-        growth_factor = math.exp((self.learning_rate / n_arms) * x) #growth factor
+        growth_factor = math.exp((self.learning_rate / n_arms) * reward_estimate) #growth factor
         self.weights[chosen_arm] *= growth_factor #updating based off of the growth factor
 
 #adversarial environment same as the one defined in the UCB algorithm 
@@ -101,7 +102,7 @@ random.seed(1)
 np.random.seed(1)
 
 n_arms = 10
-n_rounds = 1000000
+n_rounds = 100000
 learning_rate = 0.01
 
 adversary = AdversarialEnvironment(n_arms)

@@ -57,34 +57,31 @@ class OMD:
         growth_factor = math.exp((self.learning_rate / self.number_of_arms) * x)
         self.weights[chosen_arm] *= growth_factor
         self.estimated_loss_vector[chosen_arm] += loss
+    
+np.random.seed(123456)
 
-class AdversarialEnvironment:
+class StochasticEnvironment:
     def __init__(self, number_of_arms):
         self.number_of_arms = number_of_arms
         self.history = np.zeros(number_of_arms)
-        self.best_arm = random.randint(0, number_of_arms - 1)
+        self.arm_means = np.random.uniform(0.1, 0.9, self.number_of_arms)
+        self.best_arm = np.argmax(self.arm_means)
 
     def getLoss(self, chosen_arm):
         self.history[chosen_arm] += 1
-        if chosen_arm == self.best_arm:
-            if random.random() < 0.7:
-                return 1
-            else:
-                return 0
-        else:
-            if random.random() < 0.3:
-                return 1
-            else:
-                return 0
+        return np.random.binomial(1, self.arm_means[chosen_arm])
+        # return 1 - reward
 
 learning_rate = 0.01
 number_of_arms = 10
 T = 100000
-regularizer = 10
-simulations = 30
+regularizer = 5
+simulations = 1
+
+np.random.seed(123456)
 
 for simulation in range(simulations):
-    loss_function = AdversarialEnvironment(number_of_arms)
+    loss_function = StochasticEnvironment(number_of_arms)
     omd = OMD(number_of_arms, learning_rate, regularizer)
     regrets = []
     cumulative_loss = 0
@@ -94,9 +91,7 @@ for simulation in range(simulations):
         loss = loss_function.getLoss(chosen_arm)
         cumulative_loss += loss
         omd.update(chosen_arm, loss)
-        optimal_loss = (t + 1) * 0.3
-        # optimal_reward = (t + 1) * 0.7
-        # optimal_loss = 1 - optimal_reward
+        optimal_loss = (t + 1) * (1 - loss_function.arm_means[loss_function.best_arm])
         regrets.append(cumulative_loss - optimal_loss)
 
 plt.plot(regrets, label='Cumulative Regret')
