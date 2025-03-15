@@ -23,11 +23,11 @@ class OMD:
         
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         weights_for_arms = []
-        epsilon = 0.001
+        epsilon = 0.000001
         sum_of_weights = 0
         for arm in range(len(estimated_loss_vector)):
             inner_product = learning_rate * (estimated_loss_vector[arm] - normalization_factor)
-            exponent_of_inner_product = math.pow(inner_product + epsilon, -2)
+            exponent_of_inner_product = math.pow((abs(inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
             weights_for_arms.append(weight_of_arm)
             for arm_weight in range(len(weights_for_arms)):
@@ -51,12 +51,12 @@ class OMD:
     def update(self, chosen_arm, loss):
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         if self.weights[chosen_arm] > 0:
-            x = loss / self.weights[chosen_arm]
+            new_loss_estimate = loss / self.weights[chosen_arm]
+            # self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+            self.estimated_loss_vector[chosen_arm] += loss
         else:
-            x = 0
-        growth_factor = math.exp((self.learning_rate / self.number_of_arms) * x)
-        self.weights[chosen_arm] *= growth_factor
-        self.estimated_loss_vector[chosen_arm] += loss
+            new_loss_estimate = 0
+            self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
 class AdversarialEnvironment:
     def __init__(self, number_of_arms):
@@ -95,8 +95,6 @@ for simulation in range(simulations):
         cumulative_loss += loss
         omd.update(chosen_arm, loss)
         optimal_loss = (t + 1) * 0.3
-        # optimal_reward = (t + 1) * 0.7
-        # optimal_loss = 1 - optimal_reward
         regrets.append(cumulative_loss - optimal_loss)
 
 plt.plot(regrets, label='Cumulative Regret')

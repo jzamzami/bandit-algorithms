@@ -92,11 +92,16 @@ class AdversarialEnvironment:
 
     def assign_reward(self, chosen_arm):
         self.history[chosen_arm] += 1
-
         if chosen_arm == self.best_arm:
-            return 1 if random.random() < 0.7 else 0
+            if random.random() < 0.7:
+                return 1
+            else:
+                return 0
         else:
-            return 1 if random.random() < 0.3 else 0
+            if random.random() < 0.3:
+                return 1
+            else:
+                return 0
 
 random.seed(1)
 np.random.seed(1)
