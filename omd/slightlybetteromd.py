@@ -44,7 +44,7 @@ class OMD:
             for arm_weight in range(len(weights_for_arms)):
                 sum_of_weights += weights_for_arms[arm_weight]
             numerator = sum_of_weights - 1
-            denominator = learning_rate * math.pow(sum_of_weights, 3/2) 
+            denominator = learning_rate * math.pow(sum_of_weights, 3/2)
             updated_normalization_factor = normalization_factor - (numerator / denominator)
             difference_in_normalization_factors = updated_normalization_factor - normalization_factor
             if(difference_in_normalization_factors < epsilon):
@@ -68,7 +68,7 @@ class OMD:
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         if self.weights[chosen_arm] > 0:
             new_loss_estimate = loss / self.weights[chosen_arm]
-            # self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+            # self.estimated_loss_vector[chosen_arm] += new_loss_estimate 
             """other problem here is that adding the new loss estimate causes a ValueError: math domain error which has
             to do with line 30: exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2), this line
             i think is already problematic since it's like giving weirdly huge numbers which is also giving us huge
