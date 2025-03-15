@@ -26,10 +26,18 @@ class OMD:
         epsilon = 0.000001
         sum_of_weights = 0
         for arm in range(len(estimated_loss_vector)):
-            inner_product = learning_rate * (estimated_loss_vector[arm] - normalization_factor)
-            exponent_of_inner_product = math.pow((abs(inner_product + epsilon)), -2)
+            inner_product = (learning_rate * (estimated_loss_vector[arm] - normalization_factor))
+            exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
             weights_for_arms.append(weight_of_arm)
+            """problem here with weight of arm being almost 400 when our normalization factor is
+            initially 10 (and that like should not be happening, but i did the math manually and
+            i also got 400 so idk what im misunderstanding about the algorithm),and i get an even 
+            bigger number for the weight if the normalization factor is 0, but again i have no clue 
+            why because im just following the algorithm, only thing i can think of is that its 
+            (4*inner product)^-2 and not 4(inner product)^-2 but that doesn't really make sense 
+            because i feel like it's pretty clear from the pseudocode in the paper that it should 
+            be the second choice"""
             for arm_weight in range(len(weights_for_arms)):
                 sum_of_weights += weights_for_arms[arm_weight]
             numerator = sum_of_weights - 1
@@ -41,6 +49,11 @@ class OMD:
             else:
                 continue
         return weights_for_arms, updated_normalization_factor
+    
+    """in previous code/function i literally wasn't returning the updated normalization factor lol
+    but also even when i fixed it, the normalization factor had no effect on the graph. Here the normalization
+    factor does affect the graph, the regret seems to be less when the normalization factor is initially a value 
+    like 10 instead of when it starts off as non-zero"""
 
     def select_arm(self):
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
@@ -53,7 +66,15 @@ class OMD:
         if self.weights[chosen_arm] > 0:
             new_loss_estimate = loss / self.weights[chosen_arm]
             # self.estimated_loss_vector[chosen_arm] += new_loss_estimate
-            self.estimated_loss_vector[chosen_arm] += loss
+            """other problem here is that adding the new loss estimate causes a ValueError: math domain error which has
+            to do with line 30: exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2), this line
+            i think is already problematic since it's like giving weirdly huge numbers which is also giving us huge
+            weights which is smth that needs to be fixed, what's interesting or confusing i guess is that this error only 
+            occurs when the normalization factor is 10 (when its 0 it just takes a long time to run but the graph it produces
+            is unbelievably weird so its not like thats the solution, it probably would cause an error with other non-zero
+            normalization factors which is not ideal), but i think this should be the correct way of updating the loss estimates
+            unless im really missing smth"""
+            self.estimated_loss_vector[chosen_arm] += loss #this line works but i know is logically incorrect :(
         else:
             new_loss_estimate = 0
             self.estimated_loss_vector[chosen_arm] += new_loss_estimate
