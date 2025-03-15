@@ -21,7 +21,7 @@ class OMD:
         self.normalization_factor = 10
         self.estimated_loss_vector = [0.0] * number_of_arms
         
-    def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
+    def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate, number_of_iterations = 100):
         weights_for_arms = []
         epsilon = 0.000001
         sum_of_weights = 0
