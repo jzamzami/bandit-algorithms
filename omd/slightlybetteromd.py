@@ -3,14 +3,14 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-def drawArm(probabilities_of_choosing_arms):
+def drawArm(probabilities_of_choosing_arms): #helper function for choosing arm based off arm weights
     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
         choice -= probability_of_arm
         if choice <= 0:
             return choiceIndex
-        choiceIndex += 1
+        choiceIndex += 1 
 
 class Adversarial_OMD_Environment:
     def __init__(self, learning_rate, regularizer):
