@@ -150,7 +150,6 @@ class Adversarial_OMD_Environment: #adversarial omd class
         returns:
         1) action_chosen = index of arm chosen
         """
-        
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         probabilites_of_arms = self.weights
         action_chosen = drawArm(probabilites_of_arms)
@@ -158,7 +157,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
     
     def getLoss(self, chosen_arm):
         """
-        get Loss method for getting the 
+        get Loss method for getting the loss of the action we chose to take 
         
         arguments:
         1) self = python core!
@@ -169,7 +168,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         our loss estimates
         
         note: something wrong agents_history and the way it is getting updated history (Ht−1 =(A1, X1, . . . , At−1, Xt−1)), 
-        could be something wrong with the way the history is being stored 
+        could be something wrong with the way the history is being stored
         """
         self.agents_history[chosen_arm] += 1 #problem line smhh
         if chosen_arm == self.best_arm:
