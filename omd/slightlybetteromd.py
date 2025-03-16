@@ -12,13 +12,15 @@ def drawArm(probabilities_of_choosing_arms):
             return choiceIndex
         choiceIndex += 1
 
-class OMD:
+class Adversarial_OMD_Environment:
     def __init__(self, learning_rate, regularizer):
         self.learning_rate = learning_rate
         self.regularizer = regularizer
         self.weights = []
         self.normalization_factor = 10
         self.estimated_loss_vector = []
+        self.agents_history = []
+        self.best_arm = random.randint(0, number_of_arms - 1)
         
     def initialize_arm_weights(self, number_of_arms):
         for arm in range(number_of_arms):
@@ -29,6 +31,11 @@ class OMD:
         for arm in range(number_of_arms):
             self.estimated_loss_vector.append(0.0)
         return self.estimated_loss_vector
+    
+    def initialize_agents_history(self, number_of_arms):
+        for arm in range(number_of_arms):
+            self.agents_history.append(0.0)
+        return self.agents_history
         
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         # weights_for_arms = self.weights
@@ -99,18 +106,9 @@ class OMD:
         else:
             new_loss_estimate = 0
             self.estimated_loss_vector[chosen_arm] += new_loss_estimate
-
-class AdversarialEnvironment:
-    """probably need to change something with how we're finding the history and losses
-    because things also are not adding up here :D (i think its mainly a problem with the
-    size of the lists bc line 113 is whats causing an index out of bounds error)"""
-    def __init__(self, number_of_arms):
-        self.number_of_arms = number_of_arms
-        self.history = np.zeros(number_of_arms)
-        self.best_arm = random.randint(0, number_of_arms - 1)
-
+            
     def getLoss(self, chosen_arm):
-        self.history[chosen_arm] += 1
+        self.agents_history[chosen_arm] += 1
         if chosen_arm == self.best_arm:
             if random.random() < 0.7:
                 return 1
@@ -129,25 +127,27 @@ regularizer = 10
 simulations = 30
 
 for simulation in range(simulations):
-    loss_function = AdversarialEnvironment(number_of_arms)
-    omd = OMD(learning_rate, regularizer)
-    omd.initialize_arm_weights(number_of_arms)
-    omd.initialize_loss_vector(number_of_arms)
+    omd_adversarial = Adversarial_OMD_Environment(learning_rate, regularizer)
+    """got rid of separate adversarial class and just combined it with the omd class thinking it
+    would magically get rid of the index out of bounds error lol"""
+    omd_adversarial.initialize_arm_weights(number_of_arms)
+    omd_adversarial.initialize_loss_vector(number_of_arms)
+    omd_adversarial.initialize_agents_history(number_of_arms)
     regrets = []
     cumulative_loss = 0
 
     for t in range(T):
-        chosen_arm = omd.select_arm()
-        loss = loss_function.getLoss(chosen_arm)
+        chosen_arm = omd_adversarial.select_arm()
+        loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd.update(chosen_arm, loss)
+        omd_adversarial.update(chosen_arm, loss)
         optimal_loss = (t + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
 plt.plot(regrets, label='Cumulative Regret')
 plt.xlabel('Round')
 plt.ylabel('Cumulative Regret')
-plt.title("OMD Adversarial Cumulative Regret Over Time")
+plt.title("Adversarial_OMD_Environment Adversarial Cumulative Regret Over Time")
 plt.legend()
 plt.grid()
 plt.show()
