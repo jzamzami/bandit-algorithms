@@ -39,6 +39,7 @@ class Adversarial_OMD_Environment:
         
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         # weights_for_arms = self.weights
+        # weights_for_arms = [1.0 for arm in range(number_of_arms)], this causes the same index out of bounds error
         """another bug is that weights_for_arms is initialized as an empty list every time newton's method function is called
         instead and whats happening is that we break out of the for loop super early because the difference in normalization factors
         converges quick (which at this point is probably also smth im also doing wrong), so what i mean to say is that by the end of like
@@ -77,13 +78,19 @@ class Adversarial_OMD_Environment:
             else:
                 continue
         return weights_for_arms, updated_normalization_factor
+    """weights stop getting added when we reach "optimal" normaliztion factor but im not even sure if we're fr finding the optimal normalization
+    factor, i think with this part im misundertsanding the logic of the algorithm which is causing the bug and the length of the weights list 
+    not being equivalent to the number of the arms -> also like i realized that i was making a pretty dumb mistake with initializing the weights inside
+    the method instead of using the self.weights thing or even just initializing it to be equal to the number of arms but fixing that causes an index error
+    when it gets to the get loss method so there's definitely smth i need to fix there, definetely double check the logic of how the normalization factors
+    are being calculated w like see if i fr know whats supposed to be going on (sorry this is an unserious remark)"""
     
     """in previous code/function i literally wasn't returning the updated normalization factor lol
     but also even when i fixed it, the normalization factor had no effect on the graph. Here the normalization
     factor does affect the graph, the regret seems to be less when the normalization factor is initially a value 
     like 10 instead of when it starts off as non-zero"""
 
-    def select_arm(self):
+    def select_arm(self): 
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         probabilites_of_arms = self.weights
         action_chosen = drawArm(probabilites_of_arms)
@@ -108,7 +115,9 @@ class Adversarial_OMD_Environment:
             self.estimated_loss_vector[chosen_arm] += new_loss_estimate
             
     def getLoss(self, chosen_arm):
-        self.agents_history[chosen_arm] += 1
+        """smth here needs to get fixed so i can git rid of the index out of bounds error and the weights list 
+        in newtons method function whatever can have the right number of elements"""
+        self.agents_history[chosen_arm] += 1 #problem line smhh
         if chosen_arm == self.best_arm:
             if random.random() < 0.7:
                 return 1
@@ -147,7 +156,7 @@ for simulation in range(simulations):
 plt.plot(regrets, label='Cumulative Regret')
 plt.xlabel('Round')
 plt.ylabel('Cumulative Regret')
-plt.title("Adversarial_OMD_Environment Adversarial Cumulative Regret Over Time")
+plt.title("OMD Class Adversarial Environment Cumulative Regret Over Time")
 plt.legend()
 plt.grid()
 plt.show()
