@@ -3,41 +3,91 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-def drawArm(probabilities_of_choosing_arms): #helper function for choosing arm based off of arm weights
+def drawArm(probabilities_of_choosing_arms):
+    """
+    helper function for selecting arm based off of calculated probabilities
+    
+    arguments:
+    1) probabilities_of_choosing_arms => list of probabilities returned from our newton's method
+    for arm weight approximation (this is used in the select_arm function within omd class)
+    
+    returns:
+    1) choiceIndex => index of arm to pull
+    """
     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
         choice -= probability_of_arm
         if choice <= 0:
             return choiceIndex
-        choiceIndex += 1 
+        choiceIndex += 1
 
-class Adversarial_OMD_Environment:
-    def __init__(self, learning_rate, regularizer):
+class Adversarial_OMD_Environment: #adversarial omd class
+    def __init__(self, learning_rate): 
+        """
+        class constructor
+        
+        arguments:
+        1) self = used to represent an instance (object) of a class (stolen from geeks4geeks)
+        2) learning_rate = controls the explore-exploit rate when we get to newtons method
+        
+        variables initialized:
+        1) self.learning_rate = user input
+        2) self.normalization_factor = for now is temporarily 10 (i tried other values between 0 and 15, and 10 gave me the best 
+        results for some reason)
+        3) self.weights = empty list -> weights are initialized to be 1
+        4) self.estimated_loss_vector = empty list -> losses are initialized to be 0
+        5) self.agents_history = empty list -> history of each round is initialized to be 0
+        6) self.best_arm = index of best arm that is randomly chosen from our list of arms
+        
+        note: regularizer was also an argument and it was just user input, but it didn't really do anything and im not fully sure
+        if it's supposed to, because in the OMD algorithm definition the only time it's used is when we wanted to update the weights 
+        of the arms but we do that using newton's method and it's not used in newton's method so i think thats why it wasnt doing anything
+        """
         self.learning_rate = learning_rate
-        self.regularizer = regularizer
-        self.weights = []
+        # self.regularizer = regularizer
         self.normalization_factor = 10
+        self.weights = []
         self.estimated_loss_vector = []
         self.agents_history = []
         self.best_arm = random.randint(0, number_of_arms - 1)
         
     def initialize_arm_weights(self, number_of_arms):
+        """this could've been a list comprehension instead but i like for loops (also it didnt fully make a difference
+        in the runtime)"""
         for arm in range(number_of_arms):
             self.weights.append(1.0)
         return self.weights
             
     def initialize_loss_vector(self, number_of_arms):
+        """same thing"""
         for arm in range(number_of_arms):
             self.estimated_loss_vector.append(0.0)
         return self.estimated_loss_vector
     
     def initialize_agents_history(self, number_of_arms):
+        """same thing"""
         for arm in range(number_of_arms):
             self.agents_history.append(0.0)
         return self.agents_history
         
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
+        """
+        method for finding weights of arms (unfortunately so many bugs with this one)
+        
+        arguments:
+        1) self = python core!
+        2) normalization_factor = self.normalization_factor is also just 10, want the normalization factor
+        to control how our weights are being calculated and also want to find the optimal normalization factor (until convergence, which
+        is until the difference in normalization factors is less than epsilon)
+        3) estimated_loss_vector = self.estimated loss vector (want this to be updated after our update method but also important
+        since we want to know the loss of a specific arm at a given point so we can also use it for finding our arm weights)
+        4) learning_rate = self.learning rate and is just whatever we decide it is (doesn't change and is constant)
+        
+        returns:
+        1) weights_for_arms = want to return a list that contains the weights of each arm so we can then use the weights to sample an action
+        2) updated_normalization_factor = want to update our normalization factor with time and return the updated/optimal one
+        """
         # weights_for_arms = self.weights
         # weights_for_arms = [1.0 for arm in range(number_of_arms)], this causes the same index out of bounds error
         """another bug is that weights_for_arms is initialized as an empty list every time newton's method function is called
@@ -90,13 +140,62 @@ class Adversarial_OMD_Environment:
     factor does affect the graph, the regret seems to be less when the normalization factor is initially a value 
     like 10 instead of when it starts off as non-zero"""
 
-    def select_arm(self): 
+    def selectArm(self):
+        """
+        selectArm method for selecting an arm based on our new arm weights
+        
+        arguments:
+        1) self = python core!
+        
+        returns:
+        1) action_chosen = index of arm chosen
+        """
+        
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         probabilites_of_arms = self.weights
         action_chosen = drawArm(probabilites_of_arms)
         return action_chosen
     
-    def update(self, chosen_arm, loss):
+    def getLoss(self, chosen_arm):
+        """
+        get Loss method for getting the 
+        
+        arguments:
+        1) self = python core!
+        2) chosen_arm = index of arm we chose to play
+        
+        returns:
+        1) nothing but should return the loss we got from that action so that the loss can be used to update
+        our loss estimates
+        
+        note: something wrong agents_history and the way it is getting updated history (Ht−1 =(A1, X1, . . . , At−1, Xt−1)), 
+        could be something wrong with the way the history is being stored 
+        """
+        self.agents_history[chosen_arm] += 1 #problem line smhh
+        if chosen_arm == self.best_arm:
+            if random.random() < 0.7:
+                return 1
+            else:
+                return 0
+        else:
+            if random.random() < 0.3:
+                return 1
+            else:
+                return 0
+    """smth here needs to get fixed so i can git rid of the index out of bounds error and the weights list
+    in newtons method function whatever can have the right number of elements"""
+    
+    def updateWeights(self, chosen_arm, loss):
+        """
+        update method for updating arm weights
+        
+        arguments:
+        1) self = python core!
+        2) chosen_arm = index of arm we played in round
+        3) loss = loss observed from that action
+        
+        returns: nothing hehe
+        """
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         if self.weights[chosen_arm] > 0:
             new_loss_estimate = loss / self.weights[chosen_arm]
@@ -113,30 +212,15 @@ class Adversarial_OMD_Environment:
         else:
             new_loss_estimate = 0
             self.estimated_loss_vector[chosen_arm] += new_loss_estimate
-            
-    def getLoss(self, chosen_arm):
-        """smth here needs to get fixed so i can git rid of the index out of bounds error and the weights list 
-        in newtons method function whatever can have the right number of elements"""
-        self.agents_history[chosen_arm] += 1 #problem line smhh
-        if chosen_arm == self.best_arm:
-            if random.random() < 0.7:
-                return 1
-            else:
-                return 0
-        else:
-            if random.random() < 0.3:
-                return 1
-            else:
-                return 0
 
 learning_rate = 0.01
 number_of_arms = 10
 T = 100000
-regularizer = 10
+# regularizer = 10
 simulations = 30
 
-for simulation in range(simulations):
-    omd_adversarial = Adversarial_OMD_Environment(learning_rate, regularizer)
+for simulation in range(simulations): #i think this is how to like do many simulations
+    omd_adversarial = Adversarial_OMD_Environment(learning_rate)
     """got rid of separate adversarial class and just combined it with the omd class thinking it
     would magically get rid of the index out of bounds error lol"""
     omd_adversarial.initialize_arm_weights(number_of_arms)
@@ -146,10 +230,10 @@ for simulation in range(simulations):
     cumulative_loss = 0
 
     for t in range(T):
-        chosen_arm = omd_adversarial.select_arm()
+        chosen_arm = omd_adversarial.selectArm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd_adversarial.update(chosen_arm, loss)
+        omd_adversarial.updateWeights(chosen_arm, loss)
         optimal_loss = (t + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
