@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-def drawArm(probabilities_of_choosing_arms): #helper function for choosing arm based off arm weights
+def drawArm(probabilities_of_choosing_arms): #helper function for choosing arm based off of arm weights
     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
