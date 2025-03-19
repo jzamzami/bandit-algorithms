@@ -49,7 +49,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         self.normalization_factor = 10
         self.weights = []
         self.estimated_loss_vector = []
-        self.agents_history = []
+        # self.agents_history = []
         self.best_arm = random.randint(0, number_of_arms - 1)
         
     def initialize_arm_weights(self, number_of_arms):
@@ -65,11 +65,11 @@ class Adversarial_OMD_Environment: #adversarial omd class
             self.estimated_loss_vector.append(0.0)
         return self.estimated_loss_vector
     
-    def initialize_agents_history(self, number_of_arms):
-        """same thing"""
-        for arm in range(number_of_arms):
-            self.agents_history.append(0.0)
-        return self.agents_history
+    # def initialize_agents_history(self, number_of_arms):
+    #     """same thing"""
+    #     for arm in range(number_of_arms):
+    #         self.agents_history.append(0.0)
+    #     return self.agents_history
         
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         """
@@ -88,7 +88,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         1) weights_for_arms = want to return a list that contains the weights of each arm so we can then use the weights to sample an action
         2) updated_normalization_factor = want to update our normalization factor with time and return the updated/optimal one
         """
-        # weights_for_arms = self.weights
+        weights_for_arms = self.weights
         # weights_for_arms = [1.0 for arm in range(number_of_arms)], this causes the same index out of bounds error
         """another bug is that weights_for_arms is initialized as an empty list every time newton's method function is called
         instead and whats happening is that we break out of the for loop super early because the difference in normalization factors
@@ -170,7 +170,10 @@ class Adversarial_OMD_Environment: #adversarial omd class
         note: something wrong agents_history and the way it is getting updated history (Ht−1 =(A1, X1, . . . , At−1, Xt−1)), 
         could be something wrong with the way the history is being stored
         """
-        self.agents_history[chosen_arm] += 1 #problem line smhh
+        # self.agents_history[chosen_arm] += 1 #problem line smhh
+        """no need to keep track of agents history (at least for now because it doesn't really impact how rewards
+        /losses are generated since they're randomly generated so we don't really care what the agent chose in the past,
+        this fixes one issue but there's still another one lol)"""
         if chosen_arm == self.best_arm:
             if random.random() < 0.7:
                 return 1
@@ -197,6 +200,9 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         if self.weights[chosen_arm] > 0:
+            """chosen arm is like index 19 which shouldnt be possible so something wrong with how we're getting 
+            our chosen arm because we need to make sure that it's within the range of our actual arms because if its not then that makes like literally
+            no sense"""
             new_loss_estimate = loss / self.weights[chosen_arm]
             # self.estimated_loss_vector[chosen_arm] += new_loss_estimate
             """other problem here is that adding the new loss estimate causes a ValueError: math domain error which has
@@ -216,7 +222,7 @@ learning_rate = 0.01
 number_of_arms = 10
 T = 100000
 # regularizer = 10
-simulations = 30
+simulations = 1
 
 for simulation in range(simulations): #i think this is how to like do many simulations
     omd_adversarial = Adversarial_OMD_Environment(learning_rate)
@@ -224,7 +230,7 @@ for simulation in range(simulations): #i think this is how to like do many simul
     would magically get rid of the index out of bounds error lol"""
     omd_adversarial.initialize_arm_weights(number_of_arms)
     omd_adversarial.initialize_loss_vector(number_of_arms)
-    omd_adversarial.initialize_agents_history(number_of_arms)
+    # omd_adversarial.initialize_agents_history(number_of_arms)
     regrets = []
     cumulative_loss = 0
 
@@ -232,7 +238,7 @@ for simulation in range(simulations): #i think this is how to like do many simul
         chosen_arm = omd_adversarial.selectArm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd_adversarial.updateWeights(chosen_arm, loss)
+        omd_adversarial.updateWeights(chosen_arm, loss) #new problem line lol
         optimal_loss = (t + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
