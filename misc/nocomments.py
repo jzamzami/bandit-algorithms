@@ -79,7 +79,7 @@ class Adversarial_OMD_Environment:
                 new_loss_estimate = 0
                 self.estimated_loss_vector[chosen_arm] += new_loss_estimate
         else:
-            print("arm out of bounds")
+            print("arm out of bounds") #this will keep on printing arm out of bounds so def smth wrong
 
 learning_rate = 0.01
 number_of_arms = 10
