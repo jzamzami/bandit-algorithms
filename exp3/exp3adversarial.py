@@ -52,34 +52,42 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
     #         self.weights.append(1.0)
 
     def finding_probability_distributions(self):
-        pass
-    
-    def select_arm(self): #function for selecting arms
-        n_arms = len(self.weights) #the total number of arms should be the same as the length
-        #of our weights array/vector
-        total_weight = sum(self.weights) #total weight is the sum of the array
-        # probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
-        #         (self.learning_rate / n_arms) for arm in range(n_arms)] #calculating the 
-        #probability of selective a certain arm 
+        n_arms = len(self.weights)
+        total_weight = sum(self.weights)
         probs = []
         for arm in range(n_arms):
             update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
             probs.append(update_rule_for_arm)
+        return probs
+    
+    def select_arm(self): #function for selecting arms
+        # n_arms = len(self.weights) #the total number of arms should be the same as the length
+        # #of our weights array/vector
+        # total_weight = sum(self.weights) #total weight is the sum of the array
+        # # probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
+        # #         (self.learning_rate / n_arms) for arm in range(n_arms)] #calculating the 
+        # #probability of selective a certain arm 
+        # probs = []
+        # for arm in range(n_arms):
+        #     update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
+        #     probs.append(update_rule_for_arm)
+        probs = self.finding_probability_distributions()
         action_chosen = categorical_draw(probs)
         return action_chosen #based on this probability we sample an action
 
     def update(self, chosen_arm, loss): #function for updating our array of loss estimators
         #here we taken in the arm the agent chose and the loss sampled which we need for our update
-        n_arms = len(self.weights) #once again the number of arms should be the same
-        total_weight = sum(self.weights) #also total weight calculation doesnt change
-        # probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
-        #         (self.learning_rate / n_arms) for arm in range(n_arms)] #same formula for 
-        #calculating probability again
-        probs = []
-        for arm in range(n_arms): #list comprehension getting obliterated again
-            update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
-            probs.append(update_rule_for_arm)
+        # n_arms = len(self.weights) #once again the number of arms should be the same
+        # total_weight = sum(self.weights) #also total weight calculation doesnt change
+        # # probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
+        # #         (self.learning_rate / n_arms) for arm in range(n_arms)] #same formula for 
+        # #calculating probability again
+        # probs = []
+        # for arm in range(n_arms): #list comprehension getting obliterated again
+        #     update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
+        #     probs.append(update_rule_for_arm)
         # x = loss / probs[chosen_arm] if probs[chosen_arm] > 0 else 0 #loss estimator
+        probs = self.finding_probability_distributions()
         if probs[chosen_arm] > 0:
             loss_estimate = loss / probs[chosen_arm]
         else: #dont return anything (like update losses) if arm isn't chosen
@@ -125,7 +133,7 @@ for t in range(n_rounds):
     optimal_loss = (t + 1) * 0.7
     regret.append(optimal_loss - cumulative_loss) 
     """i know this says loss but its not using losses its still using rewards so need 
-    to change it to losses instead fr """
+    to change it to losses instead fr"""
     
     # chosen_arm = adversarialExp3Environment.select_arm()
     # loss = adversarialExp3Environment.assign_loss(chosen_arm)
