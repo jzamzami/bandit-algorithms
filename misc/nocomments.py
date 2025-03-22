@@ -21,14 +21,16 @@ class Adversarial_OMD_Environment:
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
     
-    # def finding_probability_distributions(self): 
+    # def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate): 
     #     n_arms = len(self.weights)
     #     total_weight = sum(self.weights)
     #     probs = []
     #     for arm in range(n_arms):
     #         update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
     #         probs.append(update_rule_for_arm)
-    #     return probs
+    #     return probs, normalization_factor
+
+    """using this also gives us linear regret which i feel like it shouldn't lol"""
     
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         weights_for_arms = []
