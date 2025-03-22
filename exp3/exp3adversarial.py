@@ -40,7 +40,7 @@ def categorical_draw(probs):
 class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have constructors so makes 
     #the environment easy to think about/create
     def __init__(self, learning_rate, n_arms): #initializing our learning which affects how much we 
-        #explore/exploit and also array/vector for our reward estimators 
+        #explore/exploit and also array/vector for our loss estimators 
         self.learning_rate = learning_rate
         self.n_arms = n_arms
         self.weights = [1.0] * n_arms
@@ -68,8 +68,8 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
         action_chosen = categorical_draw(probs)
         return action_chosen #based on this probability we sample an action
 
-    def update(self, chosen_arm, reward): #function for updating our array of reward estimators
-        #here we taken in the arm the agent chose and the reward sampled which we need for our update
+    def update(self, chosen_arm, loss): #function for updating our array of loss estimators
+        #here we taken in the arm the agent chose and the loss sampled which we need for our update
         n_arms = len(self.weights) #once again the number of arms should be the same
         total_weight = sum(self.weights) #also total weight calculation doesnt change
         # probs = [(1 - self.learning_rate) * (self.weights[arm] / total_weight) + 
@@ -79,15 +79,15 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
         for arm in range(n_arms): #list comprehension getting obliterated again
             update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
             probs.append(update_rule_for_arm)
-        # x = reward / probs[chosen_arm] if probs[chosen_arm] > 0 else 0 #reward estimator
+        # x = loss / probs[chosen_arm] if probs[chosen_arm] > 0 else 0 #loss estimator
         if probs[chosen_arm] > 0:
-            reward_estimate = reward / probs[chosen_arm]
+            loss_estimate = loss / probs[chosen_arm]
         else: #dont return anything (like update losses) if arm isn't chosen
             0
-        growth_factor = math.exp((self.learning_rate / n_arms) * reward_estimate) #growth factor
+        growth_factor = math.exp((self.learning_rate / n_arms) * loss_estimate) #growth factor
         self.weights[chosen_arm] *= growth_factor #updating based off of the growth factor
         
-    def assign_reward(self, chosen_arm):
+    def assign_loss(self, chosen_arm):
         if chosen_arm == self.best_arm:
             if random.random() < 0.7:
                 return 1
@@ -113,15 +113,27 @@ learning_rate = 0.01
 
 adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
 regret = []
-cumulative_reward = 0
+# cumulative_loss = 0
+cumulative_loss = 0
 
 for t in range(n_rounds):
     chosen_arm = adversarialExp3Environment.select_arm()
-    reward = adversarialExp3Environment.assign_reward(chosen_arm)
-    adversarialExp3Environment.update(chosen_arm, reward)
-    cumulative_reward += reward
-    optimal_reward = (t + 1) * 0.7
-    regret.append(optimal_reward - cumulative_reward)
+    loss = adversarialExp3Environment.assign_loss(chosen_arm)
+    adversarialExp3Environment.update(chosen_arm, loss)
+    
+    cumulative_loss += loss
+    optimal_loss = (t + 1) * 0.7
+    regret.append(optimal_loss - cumulative_loss) 
+    """i know this says loss but its not using losses its still using rewards so need 
+    to change it to losses instead fr """
+    
+    # chosen_arm = adversarialExp3Environment.select_arm()
+    # loss = adversarialExp3Environment.assign_loss(chosen_arm)
+    # adversarialExp3Environment.update(chosen_arm, loss)
+    
+    # cumulative_loss += loss
+    # optimal_loss = 1 - ((t + 1) * 0.7)
+    # regret.append(cumulative_loss - optimal_loss)
 
 plt.figure(figsize=(10, 6))
 plt.plot(regret, label="Cumulative Regret")
