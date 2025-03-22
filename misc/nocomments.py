@@ -10,28 +10,27 @@ def drawArm(probabilities_of_choosing_arms):
         choice -= probability_of_arm
         if choice <= 0:
             return choiceIndex
-        choiceIndex += 1
+        choiceIndex += 1 
 
 class Adversarial_OMD_Environment:
-    def __init__(self, learning_rate):
+    def __init__(self, learning_rate, number_of_arms): 
         self.learning_rate = learning_rate
         self.normalization_factor = 10
-        self.weights = []
-        self.estimated_loss_vector = []
+        self.weights = [1.0 for arm in range(number_of_arms)]
+        self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)]
+        self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
-        
-    def initialize_arm_weights(self, number_of_arms):
-        for arm in range(number_of_arms):
-            self.weights.append(1.0)
-        return self.weights
-            
-    def initialize_loss_vector(self, number_of_arms):
-        for arm in range(number_of_arms):
-            self.estimated_loss_vector.append(0.0)
-        return self.estimated_loss_vector
-        
+    
+    # def finding_probability_distributions(self): 
+    #     n_arms = len(self.weights)
+    #     total_weight = sum(self.weights)
+    #     probs = []
+    #     for arm in range(n_arms):
+    #         update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
+    #         probs.append(update_rule_for_arm)
+    #     return probs
+    
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
-        # weights_for_arms = self.weights
         weights_for_arms = []
         epsilon = 0.000001
         sum_of_weights = 0
@@ -50,7 +49,7 @@ class Adversarial_OMD_Environment:
                 break
             else:
                 continue
-        return weights_for_arms, updated_normalization_factor #everything here is saur wrong
+        return weights_for_arms, updated_normalization_factor
 
     def selectArm(self):
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
@@ -72,8 +71,9 @@ class Adversarial_OMD_Environment:
     
     def updateWeights(self, chosen_arm, loss):
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        if self.weights[chosen_arm] > 0:
-            new_loss_estimate = loss / self.weights[chosen_arm]
+        probabilites_of_arms = self.weights
+        if probabilites_of_arms[chosen_arm] > 0:
+            new_loss_estimate = loss / probabilites_of_arms[chosen_arm]
             self.estimated_loss_vector[chosen_arm] += loss
         else:
             new_loss_estimate = 0
@@ -82,12 +82,10 @@ class Adversarial_OMD_Environment:
 learning_rate = 0.01
 number_of_arms = 10
 T = 100000
-simulations = 1
+simulations = 30
 
 for simulation in range(simulations):
-    omd_adversarial = Adversarial_OMD_Environment(learning_rate)
-    omd_adversarial.initialize_arm_weights(number_of_arms)
-    omd_adversarial.initialize_loss_vector(number_of_arms)
+    omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)
     regrets = []
     cumulative_loss = 0
 
