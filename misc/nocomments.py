@@ -3,29 +3,17 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-# def drawArm(probabilities_of_choosing_arms): 
-#     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
-#     choiceIndex = 0
-#     for probability_of_arm in probabilities_of_choosing_arms:
-#         choice -= probability_of_arm
-#         if choice <= 0:
-#             return choiceIndex
-#         choiceIndex += 1
-
 def drawArm(probabilities_of_choosing_arms):
-    z = random.random()
-    cum_prob = 0.0
-    # for i in range(len(probabilities_of_choosing_arms)):
-    for i in range(number_of_arms):
-        prob = probabilities_of_choosing_arms[i]
-        cum_prob += prob
-        if cum_prob > z:
-            return i
-    return len(probabilities_of_choosing_arms) - 1
-
+    choice = random.uniform(0, sum(probabilities_of_choosing_arms))
+    choiceIndex = 0
+    for probability_of_arm in probabilities_of_choosing_arms:
+        choice -= probability_of_arm
+        if choice <= 0:
+            return choiceIndex
+        choiceIndex += 1
 
 class Adversarial_OMD_Environment:
-    def __init__(self, learning_rate): 
+    def __init__(self, learning_rate):
         self.learning_rate = learning_rate
         self.normalization_factor = 10
         self.weights = []
@@ -41,12 +29,13 @@ class Adversarial_OMD_Environment:
         for arm in range(number_of_arms):
             self.estimated_loss_vector.append(0.0)
         return self.estimated_loss_vector
-    
+        
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
-        weights_for_arms = self.weights
+        # weights_for_arms = self.weights
+        weights_for_arms = []
         epsilon = 0.000001
         sum_of_weights = 0
-        for arm in range(number_of_arms):
+        for arm in range(len(estimated_loss_vector)):
             inner_product = (learning_rate * (estimated_loss_vector[arm] - normalization_factor))
             exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
@@ -61,7 +50,7 @@ class Adversarial_OMD_Environment:
                 break
             else:
                 continue
-        return weights_for_arms, updated_normalization_factor
+        return weights_for_arms, updated_normalization_factor #everything here is saur wrong
 
     def selectArm(self):
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
@@ -70,29 +59,25 @@ class Adversarial_OMD_Environment:
         return action_chosen
     
     def getLoss(self, chosen_arm):
-        if chosen_arm in range(number_of_arms):
-            if chosen_arm == self.best_arm:
-                if random.random() < 0.7:
-                    return 1
-                else:
-                    return 0
+        if chosen_arm == self.best_arm:
+            if random.random() < 0.7:
+                return 1
             else:
-                if random.random() < 0.3:
-                    return 1
-                else:
-                    return 0
+                return 0
+        else:
+            if random.random() < 0.3:
+                return 1
+            else:
+                return 0
     
     def updateWeights(self, chosen_arm, loss):
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        if chosen_arm in range(number_of_arms):
-            if self.weights[chosen_arm] > 0:
-                new_loss_estimate = loss / self.weights[chosen_arm]
-                self.estimated_loss_vector[chosen_arm] += loss
-            else:
-                new_loss_estimate = 0
-                self.estimated_loss_vector[chosen_arm] += new_loss_estimate
-        # else:
-        #     print("arm out of bounds") #this will keep on printing arm out of bounds so def smth wrong
+        if self.weights[chosen_arm] > 0:
+            new_loss_estimate = loss / self.weights[chosen_arm]
+            self.estimated_loss_vector[chosen_arm] += loss
+        else:
+            new_loss_estimate = 0
+            self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
 learning_rate = 0.01
 number_of_arms = 10
@@ -121,5 +106,3 @@ plt.title("OMD Class Adversarial Environment Cumulative Regret Over Time")
 plt.legend()
 plt.grid()
 plt.show()
-
-# need to go back to og debugging console -> pen and paper!

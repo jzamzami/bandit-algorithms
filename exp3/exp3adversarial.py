@@ -37,18 +37,23 @@ def categorical_draw(probs):
         choiceIndex += 1
 
 
-class Exp3: #class for our exp3 algortihm -> class lets us have constructors so makes 
+class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have constructors so makes 
     #the environment easy to think about/create
-    def __init__(self, learning_rate): #initializing our learning which affects how much we 
+    def __init__(self, learning_rate, n_arms): #initializing our learning which affects how much we 
         #explore/exploit and also array/vector for our reward estimators 
         self.learning_rate = learning_rate
+        self.n_arms = n_arms
         self.weights = [1.0] * n_arms
+        self.best_arm = random.randint(0, n_arms - 1)
 
     # def initialize(self, n_arms): 
     #     # self.weights = [1.0 for _ in range(n_arms)] #initializes the weights for the arms to be 1
     #     for arm in range(n_arms):
     #         self.weights.append(1.0)
 
+    def finding_probability_distributions(self):
+        pass
+    
     def select_arm(self): #function for selecting arms
         n_arms = len(self.weights) #the total number of arms should be the same as the length
         #of our weights array/vector
@@ -57,7 +62,7 @@ class Exp3: #class for our exp3 algortihm -> class lets us have constructors so 
         #         (self.learning_rate / n_arms) for arm in range(n_arms)] #calculating the 
         #probability of selective a certain arm 
         probs = []
-        for arm in range(n_arms): #list comprehension getting obliterated 
+        for arm in range(n_arms):
             update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
             probs.append(update_rule_for_arm)
         action_chosen = categorical_draw(probs)
@@ -81,16 +86,8 @@ class Exp3: #class for our exp3 algortihm -> class lets us have constructors so 
             0
         growth_factor = math.exp((self.learning_rate / n_arms) * reward_estimate) #growth factor
         self.weights[chosen_arm] *= growth_factor #updating based off of the growth factor
-
-#adversarial environment same as the one defined in the UCB algorithm 
-class AdversarialEnvironment:
-    def __init__(self, n_arms):
-        self.n_arms = n_arms
-        self.history = np.zeros(n_arms)
-        self.best_arm = random.randint(0, n_arms - 1)
-
+        
     def assign_reward(self, chosen_arm):
-        self.history[chosen_arm] += 1
         if chosen_arm == self.best_arm:
             if random.random() < 0.7:
                 return 1
@@ -102,6 +99,8 @@ class AdversarialEnvironment:
             else:
                 return 0
 
+#adversarial environment same as the one defined in the UCB algorithm 
+
 random.seed(1)
 np.random.seed(1)
 
@@ -109,17 +108,17 @@ n_arms = 10
 n_rounds = 100000
 learning_rate = 0.01
 
-adversary = AdversarialEnvironment(n_arms)
-exp3 = Exp3(learning_rate)
-# exp3.initialize(n_arms)
+# adversary = Adversarial_Exp3(n_arms)
+# exp3 = Adversarial_Exp3(learning_rate)
 
+adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
 regret = []
 cumulative_reward = 0
 
 for t in range(n_rounds):
-    chosen_arm = exp3.select_arm()
-    reward = adversary.assign_reward(chosen_arm)
-    exp3.update(chosen_arm, reward)
+    chosen_arm = adversarialExp3Environment.select_arm()
+    reward = adversarialExp3Environment.assign_reward(chosen_arm)
+    adversarialExp3Environment.update(chosen_arm, reward)
     cumulative_reward += reward
     optimal_reward = (t + 1) * 0.7
     regret.append(optimal_reward - cumulative_reward)
