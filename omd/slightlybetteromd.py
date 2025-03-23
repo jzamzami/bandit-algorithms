@@ -204,6 +204,11 @@ class Adversarial_OMD_Environment: #adversarial omd class
     """smth here needs to get fixed so i can git rid of the index out of bounds error and the weights list
     in newtons method function whatever can have the right number of elements"""
     
+    #how does github work? 
+    
+    def ihate(self):
+        pass
+    
     def updateWeights(self, chosen_arm, loss):
         """
         update method for updating arm weights
