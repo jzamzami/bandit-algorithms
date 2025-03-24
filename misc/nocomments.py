@@ -33,14 +33,16 @@ class Adversarial_OMD_Environment:
     """using this also gives us linear regret which i feel like it shouldn't lol"""
     
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
-        weights_for_arms = []
+        weights_for_arms = [0.0 for i in range(number_of_arms)]
         epsilon = 0.000001
         sum_of_weights = 0
-        for arm in range(len(estimated_loss_vector)):
+        for arm in range(number_of_arms):
             inner_product = (learning_rate * (estimated_loss_vector[arm] - normalization_factor))
             exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
             weights_for_arms.append(weight_of_arm)
+
+
             for arm_weight in range(len(weights_for_arms)):
                 sum_of_weights += weights_for_arms[arm_weight]
             numerator = sum_of_weights - 1
@@ -74,12 +76,15 @@ class Adversarial_OMD_Environment:
     def updateWeights(self, chosen_arm, loss):
         self.weights, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         probabilites_of_arms = self.weights
-        if probabilites_of_arms[chosen_arm] > 0:
-            new_loss_estimate = loss / probabilites_of_arms[chosen_arm]
-            self.estimated_loss_vector[chosen_arm] += loss
+        for probabilites_of_arms[chosen_arm] in range(number_of_arms):
+            if probabilites_of_arms[chosen_arm] > 0:
+                new_loss_estimate = loss / probabilites_of_arms[chosen_arm]
+                self.estimated_loss_vector[chosen_arm] += loss
+            else:
+                new_loss_estimate = 0
+                self.estimated_loss_vector[chosen_arm] += new_loss_estimate
         else:
-            new_loss_estimate = 0
-            self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+            pass
 
 learning_rate = 0.01
 number_of_arms = 10
