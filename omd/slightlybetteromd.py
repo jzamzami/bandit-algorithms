@@ -74,7 +74,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
             is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
             that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
             that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor"""
-            for arm_weight in range(len(weights_for_arms)):
+            for arm_weight in range(number_of_arms):
                 sum_of_weights += weights_for_arms[arm_weight]
             numerator = sum_of_weights - 1
             denominator = learning_rate * math.pow(sum_of_weights, 3/2)
@@ -136,13 +136,13 @@ class Adversarial_OMD_Environment: #adversarial omd class
             self.estimated_loss_vector[chosen_arm] += loss
             """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
             a super weird looking graph so this line is just temporary, i think the reason it's giving a really weird graph is because of the
-            fact that the weights for arms aren't being found correctly so the losses are either 0 or 1 so the means our new loss estimate is either
+            fact that the weights for arms aren't being found correctly so the losses are either 0 or 1 so this means our new loss estimate is either
             0 or 1/W_ti (weight of arm) so if the weights for the arms are really huge numbers dividing those huge numbers by 1 gives us super tiny numbers that
-            are approaching 0 so the estimated losses are always either 0 or a number very very close to 0 (in theory fixing the weights for the arms should fix
+            approach 0 so the estimated losses are always either 0 or a number very very close to 0 (in theory fixing the weights for the arms should also fix
             this issue i think/i hope)"""
         else:
             new_loss_estimate = 0
-            self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+            self.estimated_loss_vector[chosen_arm] += new_loss_estimate 
 
 learning_rate = 0.01
 number_of_arms = 10

@@ -26,8 +26,8 @@ class Adversarial_OMD_Environment:
         sum_of_weights = 0
         for arm in range(number_of_arms):
             inner_product = (learning_rate * (estimated_loss_vector[arm] - normalization_factor))
-            exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
-            weight_of_arm = 4 * exponent_of_inner_product
+            exponent_of_inner_product = math.pow(((inner_product + epsilon)), 2)
+            weight_of_arm = 4 / exponent_of_inner_product
             weights_for_arms[arm] = weight_of_arm
             for arm_weight in range(len(weights_for_arms)):
                 sum_of_weights += weights_for_arms[arm_weight]
