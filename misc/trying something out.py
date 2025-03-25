@@ -1,6 +1,5 @@
 import random
 import math
-import numpy as np
 import matplotlib.pyplot as plt
 
 def categorical_draw(probs):
@@ -55,9 +54,6 @@ class Exp3():
                 return 1
             else:
                 return 0
-    
-random.seed(1)
-np.random.seed(1)
 
 number_of_arms = 10
 n_rounds = 100000
@@ -66,9 +62,7 @@ learning_rate = 0.01
 adversarialExp3Environment = Exp3(learning_rate, number_of_arms)
 regret = []
 cumulative_reward = 0
-# simulations = 30
 
-# for simulation in range(simulations):
 for t in range(n_rounds):
     chosen_arm = adversarialExp3Environment.select_arm()
     reward = adversarialExp3Environment.assign_reward(chosen_arm)
@@ -77,19 +71,6 @@ for t in range(n_rounds):
     cumulative_reward += reward
     optimal_reward = (t + 1) * 0.7
     regret.append(optimal_reward - cumulative_reward)
-
-# class AdversarialArm():
-#   def __init__(self, t, active_start, active_end):
-#     self.t = t
-#     self.active_start = active_start
-#     self.active_end = active_end
-
-#   def draw(self):
-#     self.t = self.t + 1
-#     if self.active_start <= self.t <= self.active_end:
-#       return 1.0
-#     else:
-#       return 0.0
 
 plt.figure(figsize=(10, 6))
 plt.plot(regret, label="Cumulative Regret")

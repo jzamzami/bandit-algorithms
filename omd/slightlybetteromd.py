@@ -23,7 +23,7 @@ def drawArm(probabilities_of_choosing_arms):
         choiceIndex += 1
 
 class Adversarial_OMD_Environment: #adversarial omd class
-    def __init__(self, learning_rate, number_of_arms): 
+    def __init__(self, learning_rate, number_of_arms):
         """
         class constructor
         
@@ -139,7 +139,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         if weights_of_arms[chosen_arm] > 0:
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
-            self.estimated_loss_vector[chosen_arm] += loss 
+            self.estimated_loss_vector[chosen_arm] += loss
             """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
             a super weird looking graph so this line is just temporary until i can figure out why the loss estimates
             are being wrongly calculated"""
