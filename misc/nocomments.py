@@ -15,14 +15,14 @@ def drawArm(probabilities_of_choosing_arms):
 class Adversarial_OMD_Environment:
     def __init__(self, learning_rate, number_of_arms): 
         self.learning_rate = learning_rate
-        self.normalization_factor = 10
+        self.normalization_factor = 0
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)]
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
     
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         weights_for_arms = [0.0 for arm in range(number_of_arms)]
-        epsilon = 0.000001
+        epsilon = 1.0e-9
         sum_of_weights = 0
         for arm in range(number_of_arms):
             inner_product = (learning_rate * (estimated_loss_vector[arm] - normalization_factor))

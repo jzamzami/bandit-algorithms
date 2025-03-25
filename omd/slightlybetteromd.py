@@ -40,7 +40,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         5) self.best_arm = index of best arm that is randomly chosen from our list of arms
         """
         self.learning_rate = learning_rate
-        self.normalization_factor = 5
+        self.normalization_factor = 0
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
@@ -61,25 +61,19 @@ class Adversarial_OMD_Environment: #adversarial omd class
         1) weights_for_arms = want to return a list that contains the weights of each arm so we can then use the weights to sample an action
         2) updated_normalization_factor = want to update our normalization factor with time and return the updated/optimal one
         """
-        weights_for_arms = [0.0 for arm in range(number_of_arms)]
-        epsilon = 0.000001
+        weights_for_arms = [0.0 for arm in range(number_of_arms)] #having the intial weights as 1/K results in larger regret than initializing them as 0
+        epsilon = 1.0e-9
         sum_of_weights = 0
         for arm in range(number_of_arms):
-            inner_product = (learning_rate * (estimated_loss_vector[arm] - normalization_factor))
+            inner_product = abs((learning_rate * (estimated_loss_vector[arm] - normalization_factor)))
             exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
             weights_for_arms[arm] = weight_of_arm
-            """problem here with weight of arm being almost 400 when our normalization factor is
-            initially 10 (and that like should not be happening, but i did the math manually and
-            i also got 400 so idk what im misunderstanding about the algorithm),and i get an even 
-            bigger number for the weight if the normalization factor is 0, but again i have no clue 
-            why because im just following the algorithm, only thing i can think of is that its 
-            (4*inner product)^-2 and not 4(inner product)^-2 but that doesn't really make sense 
-            because i feel like it's pretty clear from the pseudocode in the paper that it should 
-            be the second choice: what's happening here is that i'm getting inner product to be -0.1 (or 
-            0.1 if i had abs which i did but it didnt really make a difference) and then exponent of
-            inner product is 100 so the weight becomes 400, and then for the initial normalization factor
-            of 0 the weight is an even larger value"""
+            """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
+            so inner product is 0 and exponent of inner product becomes epsilon^-2 which is a huge number like 1.0e18 and then that huge number times 4
+            is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
+            that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
+            that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor"""
             for arm_weight in range(len(weights_for_arms)):
                 sum_of_weights += weights_for_arms[arm_weight]
             numerator = sum_of_weights - 1
@@ -137,12 +131,15 @@ class Adversarial_OMD_Environment: #adversarial omd class
         returns: nothing
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        if weights_of_arms[chosen_arm] > 0:
+        if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played 
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
             self.estimated_loss_vector[chosen_arm] += loss
             """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
-            a super weird looking graph so this line is just temporary until i can figure out why the loss estimates
-            are being wrongly calculated"""
+            a super weird looking graph so this line is just temporary, i think the reason it's giving a really weird graph is because of the
+            fact that the weights for arms aren't being found correctly so the losses are either 0 or 1 so the means our new loss estimate is either
+            0 or 1/W_ti (weight of arm) so if the weights for the arms are really huge numbers dividing those huge numbers by 1 gives us super tiny numbers that
+            are approaching 0 so the estimated losses are always either 0 or a number very very close to 0 (in theory fixing the weights for the arms should fix
+            this issue i think/i hope)"""
         else:
             new_loss_estimate = 0
             self.estimated_loss_vector[chosen_arm] += new_loss_estimate
