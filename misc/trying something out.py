@@ -33,15 +33,6 @@ class Exp3():
         probs = self.finding_probabilities()
         action_chosen = categorical_draw(probs)
         return action_chosen
-
-    def update(self, chosen_arm, reward):
-        probs = self.finding_probabilities()
-        if probs[chosen_arm] > 0:
-            x = reward / probs[chosen_arm]
-            growth_factor = math.exp((self.learning_rate / number_of_arms) * x)
-            self.estimated_rewards[chosen_arm] = self.estimated_rewards[chosen_arm] * growth_factor
-        else:
-            pass
     
     def assign_reward(self, chosen_arm):
         if chosen_arm == self.best_arm:
@@ -54,6 +45,15 @@ class Exp3():
                 return 1
             else:
                 return 0
+
+    def update(self, chosen_arm, reward):
+        probs = self.finding_probabilities()
+        if probs[chosen_arm] > 0:
+            x = reward / probs[chosen_arm]
+            growth_factor = math.exp((self.learning_rate / number_of_arms) * x)
+            self.estimated_rewards[chosen_arm] = self.estimated_rewards[chosen_arm] * growth_factor
+        else:
+            pass
 
 number_of_arms = 10
 n_rounds = 100000

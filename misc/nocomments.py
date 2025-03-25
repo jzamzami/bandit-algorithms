@@ -48,15 +48,15 @@ class Adversarial_OMD_Environment:
     
     def getLoss(self, chosen_arm):
         if chosen_arm == self.best_arm:
-            if random.random() < 0.7:
-                return 1
-            else:
-                return 0
-        else:
             if random.random() < 0.3:
-                return 1
-            else:
                 return 0
+            else:
+                return 1
+        else:
+            if random.random() < 0.7:
+                return 0
+            else:
+                return 1
     
     def updateWeights(self, chosen_arm, loss):
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
@@ -64,8 +64,7 @@ class Adversarial_OMD_Environment:
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
             self.estimated_loss_vector[chosen_arm] += loss
         else:
-            new_loss_estimate = 0
-            self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+            pass
 
 learning_rate = 0.01
 number_of_arms = 10
@@ -81,8 +80,8 @@ for simulation in range(simulations):
         chosen_arm = omd_adversarial.selectArm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd_adversarial.updateWeights(chosen_arm, loss) 
-        optimal_loss = (t + 1) * 0.3
+        omd_adversarial.updateWeights(chosen_arm, loss)
+        optimal_loss = ((t + 1) * 0.3)
         regrets.append(cumulative_loss - optimal_loss)
 
 plt.plot(regrets, label='Cumulative Regret')

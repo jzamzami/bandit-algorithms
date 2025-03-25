@@ -41,7 +41,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         self.learning_rate = learning_rate
         self.normalization_factor = 5
-        self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)]
+        self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
     
