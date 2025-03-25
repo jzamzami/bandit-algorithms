@@ -40,7 +40,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         5) self.best_arm = index of best arm that is randomly chosen from our list of arms
         """
         self.learning_rate = learning_rate
-        self.normalization_factor = 10
+        self.normalization_factor = 5
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)]
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
