@@ -5,36 +5,37 @@ import matplotlib.pyplot as plt
 def categorical_draw(probs):
     choice = random.uniform(0, sum((probs)))
     choiceIndex = 0
-
     for probability_of_arm in (probs):
         choice -= probability_of_arm
         if choice <= 0:
             return choiceIndex
         choiceIndex += 1
 
-class Exp3():
-    def __init__(self, learning_rate, number_of_arms):
-        self.learning_rate = learning_rate
-        self.number_of_arms = number_of_arms
-        self.estimated_rewards = [1.0 for i in range(number_of_arms)]
-        self.best_arm = random.randint(0, number_of_arms - 1)
-        return
 
-    def finding_probabilities(self):
-        number_of_arms = self.number_of_arms
-        total_estimated_rewards = sum(self.estimated_rewards)
-        probs = [0.0 for i in range(number_of_arms)]
-        for arm in range(number_of_arms):
-            probs[arm] = (1 - self.learning_rate) * (self.estimated_rewards[arm] / total_estimated_rewards)
-            probs[arm] = probs[arm] + (self.learning_rate) * (1.0 / float(number_of_arms))
+class Adversarial_Exp3:
+    def __init__(self, learning_rate, n_arms):
+        self.learning_rate = learning_rate
+        self.n_arms = n_arms
+        self.weights = [1.0] * n_arms
+        self.best_arm = random.randint(0, n_arms - 1)
+
+    def finding_probability_distributions(self):
+        n_arms = len(self.weights)
+        total_weight = sum(self.weights)
+        probs = [0.0 for i in range(self.n_arms)]
+        for arm in range(self.n_arms):
+            first_term = (1 - self.learning_rate) * (self.weights[arm] / total_weight)
+            second_term = (self.learning_rate / n_arms)
+            update_rule_for_arm = first_term + second_term
+            probs[arm] = update_rule_for_arm
         return probs
-        
+    
     def select_arm(self):
-        probs = self.finding_probabilities()
+        probs = self.finding_probability_distributions()
         action_chosen = categorical_draw(probs)
         return action_chosen
     
-    def assign_reward(self, chosen_arm):
+    def assign_loss(self, chosen_arm):
         if chosen_arm == self.best_arm:
             if random.random() < 0.7:
                 return 1
@@ -46,31 +47,33 @@ class Exp3():
             else:
                 return 0
 
-    def update(self, chosen_arm, reward):
-        probs = self.finding_probabilities()
+    def update(self, chosen_arm, loss):
+        probs = self.finding_probability_distributions()
         if probs[chosen_arm] > 0:
-            x = reward / probs[chosen_arm]
-            growth_factor = math.exp((self.learning_rate / number_of_arms) * x)
-            self.estimated_rewards[chosen_arm] = self.estimated_rewards[chosen_arm] * growth_factor
+            loss_estimate = loss / probs[chosen_arm]
         else:
-            pass
+            loss_estimate = 0
+        growth_factor = math.exp((self.learning_rate / n_arms) * loss_estimate)
+        self.weights[chosen_arm] *= growth_factor
 
-number_of_arms = 10
+random.seed(1)
+
+n_arms = 10
 n_rounds = 100000
 learning_rate = 0.01
 
-adversarialExp3Environment = Exp3(learning_rate, number_of_arms)
+adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
 regret = []
-cumulative_reward = 0
+cumulative_loss = 0
 
 for t in range(n_rounds):
     chosen_arm = adversarialExp3Environment.select_arm()
-    reward = adversarialExp3Environment.assign_reward(chosen_arm)
-    adversarialExp3Environment.update(chosen_arm, reward)
-        
-    cumulative_reward += reward
-    optimal_reward = (t + 1) * 0.7
-    regret.append(optimal_reward - cumulative_reward)
+    loss = adversarialExp3Environment.assign_loss(chosen_arm)
+    adversarialExp3Environment.update(chosen_arm, loss)
+    
+    cumulative_loss += loss
+    optimal_loss = (t + 1) * 0.7
+    regret.append(optimal_loss - cumulative_loss) 
 
 plt.figure(figsize=(10, 6))
 plt.plot(regret, label="Cumulative Regret")

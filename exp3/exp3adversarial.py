@@ -1,6 +1,5 @@
 import random
 import math
-import numpy as np
 import matplotlib.pyplot as plt
 #just importing libraries lol
 
@@ -54,10 +53,12 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
     def finding_probability_distributions(self):
         n_arms = len(self.weights)
         total_weight = sum(self.weights)
-        probs = []
-        for arm in range(n_arms):
-            update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
-            probs.append(update_rule_for_arm)
+        probs = [0.0 for i in range(self.n_arms)]
+        for arm in range(self.n_arms):
+            first_term = (1 - self.learning_rate) * (self.weights[arm] / total_weight)
+            second_term = (self.learning_rate / n_arms)
+            update_rule_for_arm = first_term + second_term
+            probs[arm] = update_rule_for_arm
         return probs
     
     def select_arm(self): #function for selecting arms
@@ -108,9 +109,7 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
                 return 0
 
 #adversarial environment same as the one defined in the UCB algorithm 
-
 random.seed(1)
-np.random.seed(1)
 
 n_arms = 10
 n_rounds = 100000

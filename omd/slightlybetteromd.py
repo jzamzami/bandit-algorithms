@@ -142,7 +142,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
             this issue i think/i hope)"""
         else:
             new_loss_estimate = 0
-            self.estimated_loss_vector[chosen_arm] += new_loss_estimate 
+            self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+        #self.estimated_loss_vector[chosen_arm] += new_loss_estimate -> should be able to just have this line 
 
 learning_rate = 0.01
 number_of_arms = 10
