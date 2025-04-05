@@ -85,6 +85,21 @@ class Adversarial_OMD_Environment: #adversarial omd class
             else:
                 continue
         return weights_for_arms, updated_normalization_factor
+    
+    def normalizingWeights(self, weights_for_arms):
+        """_summary_
+
+        Args:
+            weights_for_arms (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        sum_of_weigths = sum(weights_for_arms)
+        for arm_weight in range(number_of_arms):
+            normalized_arm_weight = arm_weight / sum_of_weigths
+            weights_for_arms[arm_weight] = normalized_arm_weight
+        return weights_for_arms
 
     def selectArm(self):
         """
@@ -96,7 +111,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
         1) action_chosen = index of arm chosen
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        action_chosen = drawArm(weights_of_arms)
+        normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
+        action_chosen = drawArm(normalized_weights_of_arms)
         return action_chosen
     
     def getLoss(self, chosen_arm):
@@ -131,6 +147,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         returns: nothing
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
         if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played 
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
             self.estimated_loss_vector[chosen_arm] += loss
@@ -148,7 +165,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
 learning_rate = 0.01
 number_of_arms = 10
 T = 100000
-simulations = 30
+simulations = 1
 
 for simulation in range(simulations):
     omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)
