@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-def drawArm(probabilities_of_choosing_arms): #change this such that it only works with a valid probability distribution like raise value error or like use numpy choose something 
+def drawArm(probabilities_of_choosing_arms):
     """
     helper function for selecting arm based off of calculated probabilities
     
@@ -13,14 +13,19 @@ def drawArm(probabilities_of_choosing_arms): #change this such that it only work
     
     returns:
     1) choiceIndex => index of arm to pull
+    
+    update: added a check for if the input is a valid probability distribution or not, if it isn't then it raises a value error
     """
     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
-        choice -= probability_of_arm
-        if choice <= 0:
-            return choiceIndex
-        choiceIndex += 1
+        if probability_of_arm < 0 or probability_of_arm > 1: #ensures that input is valid probability distribution
+            raise ValueError("These are not probabilities!! (you can't pull arm 1 with probability 100000)")
+        else:
+            choice -= probability_of_arm
+            if choice <= 0:
+                return choiceIndex
+            choiceIndex += 1
         
 class Adversarial_OMD_Environment: #adversarial omd class
     def __init__(self, learning_rate, number_of_arms):
@@ -40,7 +45,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         5) self.best_arm = index of best arm that is randomly chosen from our list of arms
         """
         self.learning_rate = learning_rate
-        self.normalization_factor = 1000 #big normalization factor should give better results since it gives us values between 0 and 1
+        self.normalization_factor = 0 #big normalization factor should give better results since it gives us values between 0 and 1
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results but going to stick with 0 because thats what the paper says
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)

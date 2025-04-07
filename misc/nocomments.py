@@ -7,10 +7,13 @@ def drawArm(probabilities_of_choosing_arms):
     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
-        choice -= probability_of_arm
-        if choice <= 0:
-            return choiceIndex
-        choiceIndex += 1
+        if probability_of_arm < 0 or probability_of_arm > 1:
+            raise ValueError("what are we doing here")
+        else:
+            choice -= probability_of_arm
+            if choice <= 0:
+                return choiceIndex
+            choiceIndex += 1
         
 class Adversarial_OMD_Environment:
     def __init__(self, learning_rate, number_of_arms):
@@ -64,10 +67,9 @@ class Adversarial_OMD_Environment:
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         if weights_of_arms[chosen_arm] > 0:
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
-            self.estimated_loss_vector[chosen_arm] += loss
         else:
             new_loss_estimate = 0
-            self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+        self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
 learning_rate = 0.01
 number_of_arms = 10
