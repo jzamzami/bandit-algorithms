@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-def drawArm(probabilities_of_choosing_arms):
+def drawArm(probabilities_of_choosing_arms): #change this such that it only works with a valid probability distribution
     """
     helper function for selecting arm based off of calculated probabilities
     
@@ -148,7 +148,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
-        if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played 
+        if normalized_weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played 
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
             self.estimated_loss_vector[chosen_arm] += loss
             """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
@@ -165,7 +165,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
 learning_rate = 0.01
 number_of_arms = 10
 T = 100000
-simulations = 1
+simulations = 30
 
 for simulation in range(simulations):
     omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)
