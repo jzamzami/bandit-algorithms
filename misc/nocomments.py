@@ -1,4 +1,3 @@
-import numpy as np
 import math
 import matplotlib.pyplot as plt
 import random
@@ -8,17 +7,17 @@ def drawArm(probabilities_of_choosing_arms):
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
         if probability_of_arm < 0 or probability_of_arm > 1:
-            raise ValueError("what are we doing here")
+            raise ValueError("These are not probabilities!! (you can't pull arm 1 with probability 100000)")
         else:
             choice -= probability_of_arm
             if choice <= 0:
                 return choiceIndex
             choiceIndex += 1
         
-class Adversarial_OMD_Environment:
+class Adversarial_OMD_Environment: 
     def __init__(self, learning_rate, number_of_arms):
         self.learning_rate = learning_rate
-        self.normalization_factor = 1000
+        self.normalization_factor = 1000 
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)]
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
@@ -26,24 +25,24 @@ class Adversarial_OMD_Environment:
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         weights_for_arms = [0.0 for arm in range(number_of_arms)]
         epsilon = 1.0e-9
+        sum_of_weights = 0
         
         for arm in range(number_of_arms):
             inner_product = abs((learning_rate * (estimated_loss_vector[arm] - normalization_factor)))
-            exponent_of_inner_product = math.pow(((inner_product)), -2)
+            exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
             weights_for_arms[arm] = weight_of_arm
-        
-        for arm in range(number_of_arms): #almost have right idea but this for loop makes no sense
-            sum_of_weights = sum(weights_for_arms)
+            
+            sum_of_weights += weights_for_arms[arm]
             numerator = sum_of_weights - 1
             denominator = (learning_rate * math.pow(sum_of_weights, 3/2)) + epsilon
             updated_normalization_factor = normalization_factor - (numerator / denominator)
             difference_in_normalization_factors = abs(updated_normalization_factor - normalization_factor)
+
             if(difference_in_normalization_factors < epsilon):
                 break
             else:
                 continue
-        
         return weights_for_arms, updated_normalization_factor
 
     def selectArm(self):
@@ -69,7 +68,7 @@ class Adversarial_OMD_Environment:
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
         else:
             new_loss_estimate = 0
-        self.estimated_loss_vector[chosen_arm] += new_loss_estimate
+        self.estimated_loss_vector[chosen_arm] += loss
 
 learning_rate = 0.01
 number_of_arms = 10

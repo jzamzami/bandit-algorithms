@@ -1,4 +1,3 @@
-import numpy as np
 import math
 import matplotlib.pyplot as plt
 import random
@@ -45,7 +44,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         5) self.best_arm = index of best arm that is randomly chosen from our list of arms
         """
         self.learning_rate = learning_rate
-        self.normalization_factor = 0 #big normalization factor should give better results since it gives us values between 0 and 1
+        self.normalization_factor = 1000 #big normalization factor should give better results since it gives us values between 0 and 1
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results but going to stick with 0 because thats what the paper says
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
@@ -72,7 +71,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         weights_for_arms = [0.0 for arm in range(number_of_arms)] #having the intial weights as 1/K results in larger regret than initializing them as 0
         epsilon = 1.0e-9
-        #sum_of_weights = 0
+        sum_of_weights = 0
         for arm in range(number_of_arms):
             inner_product = abs((learning_rate * (estimated_loss_vector[arm] - normalization_factor)))
             exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
@@ -85,9 +84,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
             that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
             update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
             figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
-            # for arm_weight in range(number_of_arms):
-            #     sum_of_weights += weights_for_arms[arm_weight]
-            sum_of_weights = sum(weights_for_arms)
+            sum_of_weights += weights_for_arms[arm]
             numerator = sum_of_weights - 1
             denominator = (learning_rate * math.pow(sum_of_weights, 3/2)) + epsilon
             updated_normalization_factor = normalization_factor - (numerator / denominator)
@@ -184,7 +181,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
 
 learning_rate = 0.01
 number_of_arms = 10
-T = 55000
+T = 100000
 simulations = 1
 
 for simulation in range(simulations):
