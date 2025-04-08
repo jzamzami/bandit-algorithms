@@ -86,22 +86,22 @@ class Adversarial_OMD_Environment: #adversarial omd class
             that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
             update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
             figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
-            sum_of_weights += weights_for_arms[arm]
-            numerator = sum_of_weights - 1
-            sum_of_arms_taken_to_power = 0
-            for arm_weight in range(number_of_arms):
-                updated_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
-                sum_of_arms_taken_to_power += updated_arm_weight
-            denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
-            updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
-            difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
-            previous_normalization_factor = updated_normalization_factor
-            if(difference_in_normalization_factors < epsilon):
-                break
-            else:
-                continue
-        return weights_for_arms, updated_normalization_factor
-        # return weights_for_arms
+        #     sum_of_weights += weights_for_arms[arm]
+        #     numerator = sum_of_weights - 1
+        #     sum_of_arms_taken_to_power = 0
+        #     for arm_weight in range(number_of_arms):
+        #         updated_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
+        #         sum_of_arms_taken_to_power += updated_arm_weight
+        #     denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
+        #     updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
+        #     difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
+        #     previous_normalization_factor = updated_normalization_factor
+        #     if(difference_in_normalization_factors < epsilon):
+        #         break
+        #     else:
+        #         continue
+        # return weights_for_arms, updated_normalization_factor
+        return weights_for_arms
     
     # def normalizingWeights(self, weights_for_arms): 
         # """
@@ -132,8 +132,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
         returns:
         1) action_chosen = index of arm chosen
         """
-        weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        # weights_of_arms = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        # weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        weights_of_arms = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         # normalized_weights_of_arms = self.normalizingWeights(weights_of_arms) -> will ignore for now 
         # action_chosen = drawArm(normalized_weights_of_arms)
         action_chosen = drawArm(weights_of_arms)
@@ -171,8 +171,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
         
         returns: nothing
         """
-        weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        #weights_of_arms = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        # weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        weights_of_arms = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         # normalized_weights_of_arms = self.normalizingWeights(weights_of_arms) #-> will ignore for now 
         if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played 
         # if normalized_weights_of_arms[chosen_arm] > 0:

@@ -25,37 +25,47 @@ class Adversarial_OMD_Environment:
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
         weights_for_arms = [0.1 for arm in range(number_of_arms)]
         epsilon = 1.0e-9
-        sum_of_weights = 0
-        previous_normalization_factor = normalization_factor
-        updated_normalization_factor = normalization_factor
-
-        for arm in range(number_of_arms):
-            inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
-            exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
-            weight_of_arm = 4 * exponent_of_inner_product
-            weights_for_arms[arm] = weight_of_arm
+        prev = normalization_factor
+        updated = normalization_factor
+        
+        while (updated - prev > epsilon):
             
-            sum_of_weights += weights_for_arms[arm]
+            for arm in range(number_of_arms):
+                inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated)))
+                exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
+                weight_of_arm = 4 * exponent_of_inner_product
+                weights_for_arms[arm] = weight_of_arm
+            sum_of_weights = sum(weights_for_arms)
             numerator = sum_of_weights - 1
             sum_of_arms_taken_to_power = 0
             
             for arm_weight in range(number_of_arms):
                 updated_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
                 sum_of_arms_taken_to_power += updated_arm_weight
-            
+                
             denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
-            updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
-            difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
-            previous_normalization_factor = updated_normalization_factor
-            if(difference_in_normalization_factors < epsilon):
-                break
+            updated = prev - (numerator / denominator)
+            diff = abs(updated - prev)
+            prev = updated
+            if(diff < epsilon):
+                pass
             else:
-                continue
-        return weights_for_arms, updated_normalization_factor
+                pass
+        return weights_for_arms, updated
+    
+    # def normalizingWeights(self, weights_for_arms):
+    #     weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+    #     sum_of_weights = sum(weights_of_arms)
+    #     for arm_weight in range(number_of_arms):
+    #         normalized_arm_weight = weights_of_arms[arm_weight] / sum_of_weights
+    #         weights_of_arms[arm_weight] = normalized_arm_weight
+    #     return weights_of_arms
 
     def selectArm(self):
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        #normalized_weights = self.normalizingWeights(weights_of_arms)
         action_chosen = drawArm(weights_of_arms)
+        # action_chosen = drawArm(normalized_weights)
         return action_chosen
     
     def getLoss(self, chosen_arm):
@@ -72,7 +82,9 @@ class Adversarial_OMD_Environment:
     
     def updateLossVector(self, chosen_arm, loss):
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        #normalized_weights = self.normalizingWeights(weights_of_arms)
         if weights_of_arms[chosen_arm] > 0:
+        #if normalized_weights[chosen_arm] > 0:
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
         else:
             new_loss_estimate = 0
@@ -92,7 +104,7 @@ for simulation in range(simulations):
         chosen_arm = omd_adversarial.selectArm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd_adversarial.updateLossVector(chosen_arm, loss) 
+        omd_adversarial.updateLossVector(chosen_arm, loss)
         optimal_loss = (t + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
