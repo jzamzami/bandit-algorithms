@@ -17,28 +17,36 @@ def drawArm(probabilities_of_choosing_arms):
 class Adversarial_OMD_Environment: 
     def __init__(self, learning_rate, number_of_arms):
         self.learning_rate = learning_rate
-        self.normalization_factor = 1000 
+        self.normalization_factor = 1000
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)]
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
     
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
-        weights_for_arms = [0.0 for arm in range(number_of_arms)]
+        weights_for_arms = [0.1 for arm in range(number_of_arms)]
         epsilon = 1.0e-9
         sum_of_weights = 0
-        
+        previous_normalization_factor = normalization_factor
+        updated_normalization_factor = normalization_factor
+
         for arm in range(number_of_arms):
-            inner_product = abs((learning_rate * (estimated_loss_vector[arm] - normalization_factor)))
+            inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
             exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
             weights_for_arms[arm] = weight_of_arm
             
             sum_of_weights += weights_for_arms[arm]
             numerator = sum_of_weights - 1
-            denominator = (learning_rate * math.pow(sum_of_weights, 3/2)) + epsilon
-            updated_normalization_factor = normalization_factor - (numerator / denominator)
-            difference_in_normalization_factors = abs(updated_normalization_factor - normalization_factor)
-
+            sum_of_arms_taken_to_power = 0
+            
+            for arm_weight in range(number_of_arms):
+                updated_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
+                sum_of_arms_taken_to_power += updated_arm_weight
+            
+            denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
+            updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
+            difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
+            previous_normalization_factor = updated_normalization_factor
             if(difference_in_normalization_factors < epsilon):
                 break
             else:
