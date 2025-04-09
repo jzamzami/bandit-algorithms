@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 import random
 
 def drawArm(probabilities_of_choosing_arms):
+    rounded_sum_of_probabilities = round(sum(probabilities_of_choosing_arms)) #only reason we're rounding is because sometimes the sum is veryyy close to 1 like 0.9999 so this is just temporary until i know how to make sure the sum is 1 fr
     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
-        if probability_of_arm < 0 or probability_of_arm > 1 or sum(probabilities_of_choosing_arms) != 1:
+        if probability_of_arm < 0 or probability_of_arm > 1 or rounded_sum_of_probabilities != 1:
             raise ValueError("This is not a valid probability distribution (you can't pull arm 1 with probability 400)!!")
         else:
             choice -= probability_of_arm
@@ -54,9 +55,8 @@ class Adversarial_OMD_Environment:
 
     def selectArm(self):
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        # normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
-        #action_chosen = drawArm(normalized_weights_of_arms)
-        action_chosen = drawArm(weights_of_arms)
+        normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
+        action_chosen = drawArm(normalized_weights_of_arms)
         return action_chosen
     
     def getLoss(self, chosen_arm):
@@ -73,9 +73,8 @@ class Adversarial_OMD_Environment:
     
     def updateLossVector(self, chosen_arm, loss):
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        # normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
-        #if normalized_weights_of_arms[chosen_arm] > 0:
-        if weights_of_arms[chosen_arm] > 0:
+        normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
+        if normalized_weights_of_arms[chosen_arm] > 0:
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
         else:
             new_loss_estimate = 0
@@ -83,7 +82,7 @@ class Adversarial_OMD_Environment:
             
 learning_rate = 0.01
 number_of_arms = 10
-T = 100000
+time_horizon = 100000
 simulations = 30
 
 for simulation in range(simulations):
@@ -91,12 +90,12 @@ for simulation in range(simulations):
     regrets = []
     cumulative_loss = 0
 
-    for t in range(T):
+    for round_played in range(time_horizon):
         chosen_arm = omd_adversarial.selectArm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
         omd_adversarial.updateLossVector(chosen_arm, loss) 
-        optimal_loss = (t + 1) * 0.3
+        optimal_loss = (round_played + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
 plt.plot(regrets, label='Cumulative Regret')

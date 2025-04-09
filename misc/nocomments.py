@@ -93,21 +93,21 @@ class Adversarial_OMD_Environment:
         self.estimated_loss_vector[chosen_arm] += loss
 
 learning_rate = 0.01
-number_of_arms = 5
-T = 1000
-simulations = 1
+number_of_arms = 10
+time_horizon = 100000
+simulations = 30
 
 for simulation in range(simulations):
     omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)
     regrets = []
     cumulative_loss = 0
 
-    for t in range(T):
+    for round_played in range(time_horizon):
         chosen_arm = omd_adversarial.selectArm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
         omd_adversarial.updateLossVector(chosen_arm, loss)
-        optimal_loss = (t + 1) * 0.3
+        optimal_loss = (round_played + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
 plt.plot(regrets, label='Cumulative Regret')
