@@ -32,17 +32,17 @@ class Adversarial_OMD_Environment:
             exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
             weight_of_arm = 4 * exponent_of_inner_product
             weights_for_arms[arm] = weight_of_arm
-            for arm_weight in range(number_of_arms):
-                sum_of_weights += weights_for_arms[arm_weight]
-            numerator = sum_of_weights - 1
-            denominator = learning_rate * math.pow(sum_of_weights, 3/2)
-            updated_normalization_factor = normalization_factor - (numerator / denominator)
-            difference_in_normalization_factors = abs(updated_normalization_factor - normalization_factor)
-            if(difference_in_normalization_factors < epsilon):
-                break
-            else:
-                continue
-        return weights_for_arms, updated_normalization_factor
+            # for arm_weight in range(number_of_arms):
+            #     sum_of_weights += weights_for_arms[arm_weight]
+            # numerator = sum_of_weights - 1
+            # denominator = learning_rate * math.pow(sum_of_weights, 3/2)
+            # updated_normalization_factor = normalization_factor - (numerator / denominator)
+            # difference_in_normalization_factors = abs(updated_normalization_factor - normalization_factor)
+            # if(difference_in_normalization_factors < epsilon):
+            #     break
+            # else:
+            #     continue
+        return weights_for_arms, normalization_factor
     
     def normalizingWeights(self, weights_for_arms):
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)

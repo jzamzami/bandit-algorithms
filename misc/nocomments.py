@@ -50,7 +50,6 @@ class Adversarial_OMD_Environment:
             
             if(difference_in_normalization_factors < epsilon):
                 break
-            
             else:
                 continue
             
