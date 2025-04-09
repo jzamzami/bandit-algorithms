@@ -95,7 +95,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
             updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
             difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
             previous_normalization_factor = updated_normalization_factor
-            if(difference_in_normalization_factors < epsilon): #they literally will not converge to the same value
+            if(difference_in_normalization_factors < epsilon): #this condition is never met (or takes unbelieb)
                 break
             else:
                 continue

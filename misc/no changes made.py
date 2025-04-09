@@ -94,7 +94,7 @@ for simulation in range(simulations):
         chosen_arm = omd_adversarial.selectArm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd_adversarial.updateLossVector(chosen_arm, loss) 
+        omd_adversarial.updateLossVector(chosen_arm, loss)
         optimal_loss = (round_played + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
