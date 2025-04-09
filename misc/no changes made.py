@@ -8,7 +8,7 @@ def drawArm(probabilities_of_choosing_arms):
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
         if probability_of_arm < 0 or probability_of_arm > 1 or sum(probabilities_of_choosing_arms) != 1:
-            raise ValueError("These are not probabilities!! (you can't pull arm 1 with probability 100000)")
+            raise ValueError("This is not a valid probability distribution (you can't pull arm 1 with probability 400)!!")
         else:
             choice -= probability_of_arm
             if choice <= 0:
