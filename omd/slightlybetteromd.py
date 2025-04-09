@@ -18,7 +18,7 @@ def drawArm(probabilities_of_choosing_arms):
     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
     choiceIndex = 0
     for probability_of_arm in probabilities_of_choosing_arms:
-        if probability_of_arm < 0 or probability_of_arm > 1: #ensures that input is valid probability distribution
+        if probability_of_arm < 0 or probability_of_arm > 1 or sum(probabilities_of_choosing_arms) != 1: #ensures that input is valid probability distribution
             raise ValueError("These are not probabilities!! (you can't pull arm 1 with probability 100000)")
         else:
             choice -= probability_of_arm
@@ -65,9 +65,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
         1) weights_for_arms = want to return a list that contains the weights of each arm so we can then use the weights to sample an action
         2) updated_normalization_factor = want to update our normalization factor with time and return the updated/optimal one
         
-        update: i think the issue isn't with finding the weights i think its with finding the optimal normalization factor because the code for finding the weights
-        is exactly the same as what's described in the paper, and i think its also the same for the normalization factor but the problem could be with when we exit out of the
-        loop because we converged to the optimal values if that makes sense (should it converge to 1/K)
+        update: i think the problem might be with finding the optimal normalization factor because we literally never exit out of the loop (the runtime is insane (longer than 5 mins)) because
+        the difference in the previous and updated normalization factors keeps changing and they are *very* different values so idk what the problem is
         """
         weights_for_arms = [0.1 for arm in range(number_of_arms)]
         epsilon = 1.0e-9
