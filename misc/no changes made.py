@@ -1,4 +1,3 @@
-import numpy as np
 import math
 import matplotlib.pyplot as plt
 import random
@@ -25,7 +24,7 @@ class Adversarial_OMD_Environment:
         self.best_arm = random.randint(0, number_of_arms - 1)
     
     def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate):
-        weights_for_arms = [0.0 for arm in range(number_of_arms)]
+        weights_for_arms = [0.1 for arm in range(number_of_arms)]
         epsilon = 1.0e-9
         sum_of_weights = 0
         for arm in range(number_of_arms):
