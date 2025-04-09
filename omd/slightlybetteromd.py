@@ -69,57 +69,54 @@ class Adversarial_OMD_Environment: #adversarial omd class
         is exactly the same as what's described in the paper, and i think its also the same for the normalization factor but the problem could be with when we exit out of the
         loop because we converged to the optimal values if that makes sense (should it converge to 1/K)
         """
-        weights_for_arms = [0.1 for arm in range(number_of_arms)] #having the intial weights as 1/K results in larger regret than initializing them as 0
+        weights_for_arms = [0.1 for arm in range(number_of_arms)]
         epsilon = 1.0e-9
-        sum_of_weights = 0
         previous_normalization_factor = normalization_factor
         updated_normalization_factor = normalization_factor
-        for arm in range(number_of_arms):
-            inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
-            exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
-            weight_of_arm = 4 * exponent_of_inner_product
-            weights_for_arms[arm] = weight_of_arm
-            """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
-            so inner product is 0 and exponent of inner product becomes epsilon^-2 which is a huge number like 1.0e18 and then that huge number times 4
-            is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
-            that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
-            that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
-            update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
-            figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
-        #     sum_of_weights += weights_for_arms[arm]
-        #     numerator = sum_of_weights - 1
-        #     sum_of_arms_taken_to_power = 0
-        #     for arm_weight in range(number_of_arms):
-        #         updated_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
-        #         sum_of_arms_taken_to_power += updated_arm_weight
-        #     denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
-        #     updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
-        #     difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
-        #     previous_normalization_factor = updated_normalization_factor
-        #     if(difference_in_normalization_factors < epsilon):
-        #         break
-        #     else:
-        #         continue
-        # return weights_for_arms, updated_normalization_factor
-        return weights_for_arms
+        while True:
+            for arm in range(number_of_arms):
+                inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
+                exponent_of_inner_product = math.pow(((inner_product)), -2)
+                weight_of_arm = 4 * exponent_of_inner_product
+                weights_for_arms[arm] = weight_of_arm
+                """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
+                so inner product is 0 and exponent of inner product becomes epsilon^-2 which is a huge number like 1.0e18 and then that huge number times 4
+                is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
+                that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
+                that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
+                update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
+                figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
+            sum_of_weights = sum(weights_for_arms)
+            numerator = sum_of_weights - 1
+            sum_of_arms_taken_to_power = 0
+            for arm_weight in range(number_of_arms):
+                updated_normalization_factor_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
+                sum_of_arms_taken_to_power += updated_normalization_factor_arm_weight
+            denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
+            updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
+            difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
+            previous_normalization_factor = updated_normalization_factor
+            if(difference_in_normalization_factors < epsilon): #they literally will not converge to the same value
+                break
+            else:
+                continue
+        return weights_for_arms, updated_normalization_factor
     
-    # def normalizingWeights(self, weights_for_arms): 
+    # def normalizingWeights(self, weights_for_arms):
         # """
         # method for normalizing weights so they're actually between 0 and 1 and add up to 1 
-        # (like a normal probability distribution lol)
+        # (like an actual probability distribution lol) -> also didn't have to shift values because no negative weights are being found (thankfully lol)
         
         # Args:
         #     weights_for_arms (int): probability distribution for how likely we're going to pull each arm
 
         # Returns:
         #     weights_for_arms (int): normalized list of weights so theyre actually probabilities
-
-        # update: idk if this fully works because the weights are still greater than 1, but the good thing is we definitely don't have negative weights
         # """
     #     weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
     #     sum_of_weights = sum(weights_of_arms)
     #     for arm_weight in range(number_of_arms):
-    #         normalized_arm_weight = arm_weight / sum_of_weights
+    #         normalized_arm_weight = weights_of_arms[arm_weight] / sum_of_weights
     #         weights_of_arms[arm_weight] = normalized_arm_weight
     #     return weights_of_arms
 
@@ -132,12 +129,10 @@ class Adversarial_OMD_Environment: #adversarial omd class
         returns:
         1) action_chosen = index of arm chosen
         """
-        # weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        weights_of_arms = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        # normalized_weights_of_arms = self.normalizingWeights(weights_of_arms) -> will ignore for now 
-        # action_chosen = drawArm(normalized_weights_of_arms)
+        weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        #normalized_weights = self.normalizingWeights(weights_of_arms)
         action_chosen = drawArm(weights_of_arms)
-        #action_chosen = numpy.random.choice(a, size=None, replace=True, p=None) -> something like this so that it actually raises a value error if we dont have a valid probability distribution
+        # action_chosen = drawArm(normalized_weights)
         return action_chosen
     
     def getLoss(self, chosen_arm):
@@ -171,25 +166,21 @@ class Adversarial_OMD_Environment: #adversarial omd class
         
         returns: nothing
         """
-        # weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        weights_of_arms = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
-        # normalized_weights_of_arms = self.normalizingWeights(weights_of_arms) #-> will ignore for now 
-        if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played 
-        # if normalized_weights_of_arms[chosen_arm] > 0:
+        weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
+        #normalized_weights = self.normalizingWeights(weights_of_arms)
+        if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played
+        #if normalized_weights[chosen_arm] > 0:
             new_loss_estimate = loss / weights_of_arms[chosen_arm]
-            # self.estimated_loss_vector[chosen_arm] += loss
-            # self.estimated_loss_vector[chosen_arm] += new_loss_estimate
-            """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
-            a super weird looking graph so this line is just temporary, i think the reason it's giving a really weird graph is because of the
-            fact that the weights for arms aren't being found correctly so the losses are either 0 or 1 so this means our new loss estimate is either
-            0 or 1/W_ti (weight of arm) so if the weights for the arms are really huge numbers dividing those huge numbers by 1 gives us super tiny numbers that
-            approach 0 so the estimated losses are always either 0 or a number very very close to 0 (in theory fixing the weights for the arms should also fix
-            this issue i think/i hope)"""
         else:
             new_loss_estimate = 0
-            # self.estimated_loss_vector[chosen_arm] += new_loss_estimate
-        #self.estimated_loss_vector[chosen_arm] += new_loss_estimate -> should be able to just have this line 
+        #self.estimated_loss_vector[chosen_arm] += new_loss_estimate -> should be able to just have this line
         self.estimated_loss_vector[chosen_arm] += loss
+        """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
+        a super weird looking graph so this line is just temporary, i think the reason it's giving a really weird graph is because of the
+        fact that the weights for arms aren't being found correctly so the losses are either 0 or 1 so this means our new loss estimate is either
+        0 or 1/W_ti (weight of arm) so if the weights for the arms are really huge numbers dividing those huge numbers by 1 gives us super tiny numbers that
+        approach 0 so the estimated losses are always either 0 or a number very very close to 0 (in theory fixing the weights for the arms should also fix
+        this issue i think/i hope)"""
 
 learning_rate = 0.01
 number_of_arms = 10
