@@ -194,7 +194,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         normalized_weights = self.normalizingWeights(weights_of_arms)
         #if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played
         if normalized_weights[chosen_arm] > 0:
-            #new_loss_estimate = loss / weights_of_arms[chosen_arm][chosen_arm]
+            #new_loss_estimate = loss / weights_of_arms[chosen_arm]
             new_loss_estimate = loss / normalized_weights[chosen_arm]
         else:
             new_loss_estimate = 0
