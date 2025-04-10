@@ -194,10 +194,11 @@ class Adversarial_OMD_Environment: #adversarial omd class
         normalized_weights = self.normalizingWeights(weights_of_arms)
         #if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played
         if normalized_weights[chosen_arm] > 0:
+            #new_loss_estimate = loss / weights_of_arms[chosen_arm][chosen_arm]
             new_loss_estimate = loss / normalized_weights[chosen_arm]
         else:
             new_loss_estimate = 0
-        #self.estimated_loss_vector[chosen_arm] += new_loss_estimate -> should be able to just have this line
+        #self.estimated_loss_vector[chosen_arm] += loss -> what i previously had because adding the loss estimates would result in either a linear graph or graph with negative regret???
         self.estimated_loss_vector[chosen_arm] += new_loss_estimate
         """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
         a super weird looking graph so this line is just temporary, i think the reason it's giving a really weird graph is because of the
