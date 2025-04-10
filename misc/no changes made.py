@@ -74,10 +74,10 @@ class Adversarial_OMD_Environment:
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         normalized_weights_of_arms = self.normalizingWeights(weights_of_arms)
         if normalized_weights_of_arms[chosen_arm] > 0:
-            new_loss_estimate = loss / weights_of_arms[chosen_arm]
+            new_loss_estimate = loss / normalized_weights_of_arms[chosen_arm]
         else:
             new_loss_estimate = 0
-        self.estimated_loss_vector[chosen_arm] += loss
+        self.estimated_loss_vector[chosen_arm] += new_loss_estimate
             
 learning_rate = 0.01
 number_of_arms = 10
