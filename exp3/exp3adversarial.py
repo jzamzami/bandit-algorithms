@@ -28,13 +28,15 @@ def categorical_draw(probs):
     """
     choice = random.uniform(0, sum((probs)))
     choiceIndex = 0
-
+    rounded_sum = round(sum(probs))
     for probability_of_arm in (probs):
-        choice -= probability_of_arm
-        if choice <= 0:
-            return choiceIndex
-        choiceIndex += 1
-
+        if probability_of_arm < 0 or probability_of_arm > 1 or rounded_sum != 1:
+            raise ValueError("This is not a valid probability distribution (you can't pull arm 1 with probability 400)!!")
+        else:
+            choice -= probability_of_arm
+            if choice <= 0:
+                return choiceIndex
+            choiceIndex += 1
 
 class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have constructors so makes 
     #the environment easy to think about/create
