@@ -46,7 +46,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
         5) self.best_arm = index of best arm that is randomly chosen from our list of arms
         """
         self.learning_rate = learning_rate
-        self.normalization_factor = 7.90569 #big normalization factor should give better results since it gives us values between 0 and 1
+        self.normalization_factor = 200*math.sqrt(10)#big normalization factor should give better results since it gives us values between 0 and 1
+        #self.normalization_factor = 632.46
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results but going to stick with 0 because thats what the paper says
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
@@ -74,33 +75,33 @@ class Adversarial_OMD_Environment: #adversarial omd class
         epsilon = 1.0e-9
         previous_normalization_factor = normalization_factor
         updated_normalization_factor = normalization_factor
-        # while True:
-        for arm in range(number_of_arms):
-                inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
-                exponent_of_inner_product = math.pow(((inner_product)), -2)
-                weight_of_arm = 4 * exponent_of_inner_product
-                weights_for_arms[arm] = weight_of_arm
-                """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
-                so inner product is 0 and exponent of inner product becomes epsilon^-2 which is a huge number like 1.0e18 and then that huge number times 4
-                is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
-                that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
-                that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
-                update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
-                figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
-            # sum_of_weights = sum(weights_for_arms)
-            # numerator = sum_of_weights - 1
-            # sum_of_arms_taken_to_power = 0
-            # for arm_weight in range(number_of_arms):
-            #     updated_normalization_factor_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
-            #     sum_of_arms_taken_to_power += updated_normalization_factor_arm_weight
-            # denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
-            # updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
-            # difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
-            # previous_normalization_factor = updated_normalization_factor
-            # if(difference_in_normalization_factors < epsilon): #this condition is never met (or takes unbelievably long)
-            #     break
-            # else:
-            #     continue
+        while True:
+            for arm in range(number_of_arms):
+                    inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
+                    exponent_of_inner_product = math.pow(((inner_product)), -2)
+                    weight_of_arm = 4 * exponent_of_inner_product
+                    weights_for_arms[arm] = weight_of_arm
+                    """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
+                    so inner product is 0 and exponent of inner product becomes epsilon^-2 which is a huge number like 1.0e18 and then that huge number times 4
+                    is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
+                    that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
+                    that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
+                    update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
+                    figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
+            sum_of_weights = sum(weights_for_arms)
+            numerator = sum_of_weights - 1
+            sum_of_arms_taken_to_power = 0
+            for arm_weight in range(number_of_arms):
+                updated_normalization_factor_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
+                sum_of_arms_taken_to_power += updated_normalization_factor_arm_weight
+            denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
+            updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
+            difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
+            previous_normalization_factor = updated_normalization_factor
+            if(difference_in_normalization_factors < epsilon): #this condition is never met (or takes unbelievably long)
+                break
+            else:
+                continue
         return weights_for_arms, updated_normalization_factor
     
     # def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate): 
@@ -214,7 +215,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
 learning_rate = 0.01
 number_of_arms = 10
 time_horizon = 100000
-simulations = 30
+simulations = 1
 
 for simulation in range(simulations):
     omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)
