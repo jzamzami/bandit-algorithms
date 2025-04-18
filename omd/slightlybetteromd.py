@@ -46,7 +46,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         5) self.best_arm = index of best arm that is randomly chosen from our list of arms
         """
         self.learning_rate = learning_rate
-        self.normalization_factor = 200*math.sqrt(10)#big normalization factor should give better results since it gives us values between 0 and 1
+        self.normalization_factor = 200*math.sqrt(10) #big normalization factor should give better results since it gives us values between 0 and 1
         #self.normalization_factor = 632.46
         self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results but going to stick with 0 because thats what the paper says
         self.number_of_arms = number_of_arms
@@ -78,7 +78,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         while True:
             for arm in range(number_of_arms):
                     inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
-                    exponent_of_inner_product = math.pow(((inner_product)), -2)
+                    exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
                     weight_of_arm = 4 * exponent_of_inner_product
                     weights_for_arms[arm] = weight_of_arm
                     """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
@@ -157,8 +157,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         normalized_weights = self.normalizingWeights(weights_of_arms)
-        #action_chosen = drawArm(weights_of_arms)
-        action_chosen = drawArm(normalized_weights)
+        action_chosen = drawArm(weights_of_arms)
+        #action_chosen = drawArm(normalized_weights)
         return action_chosen
     
     def getLoss(self, chosen_arm):
@@ -194,10 +194,10 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         normalized_weights = self.normalizingWeights(weights_of_arms)
-        #if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played
-        if normalized_weights[chosen_arm] > 0:
-            #new_loss_estimate = loss / weights_of_arms[chosen_arm]
-            new_loss_estimate = loss / normalized_weights[chosen_arm]
+        if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played
+        #if normalized_weights[chosen_arm] > 0:
+            new_loss_estimate = loss / weights_of_arms[chosen_arm]
+            #new_loss_estimate = loss / normalized_weights[chosen_arm]
         else:
             new_loss_estimate = 0
         #self.estimated_loss_vector[chosen_arm] += loss -> what i previously had because adding the loss estimates would result in either a linear graph or graph with negative regret???
@@ -215,7 +215,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
 learning_rate = 0.01
 number_of_arms = 10
 time_horizon = 100000
-simulations = 1
+simulations = 30
 
 for simulation in range(simulations):
     omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)
