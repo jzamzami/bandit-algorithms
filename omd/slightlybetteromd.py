@@ -1,32 +1,33 @@
 import math
 import matplotlib.pyplot as plt
 import random
+import numpy as np
 
-def drawArm(probabilities_of_choosing_arms):
-    """
-    helper function for selecting arm based off of calculated probabilities
+# def drawArm(probabilities_of_choosing_arms):
+#     """
+#     helper function for selecting arm based off of calculated probabilities
     
-    arguments:
-    1) probabilities_of_choosing_arms => list of probabilities returned from our newton's method
-    for arm weight approximation (this is used in the select_arm function within omd class)
+#     arguments:
+#     1) probabilities_of_choosing_arms => list of probabilities returned from our newton's method
+#     for arm weight approximation (this is used in the select_arm function within omd class)
     
-    returns:
-    1) choiceIndex => index of arm to pull
+#     returns:
+#     1) choiceIndex => index of arm to pull
     
-    update: added a check for if the input is a valid probability distribution or not, if it isn't then it raises a value error
-    """
-    rounded_sum_of_probabilities = round(sum(probabilities_of_choosing_arms)) #only reason we're rounding is because sometimes the sum is veryyy close to 1 like 0.9999 so this is just temporary until i know how to make sure the sum is 1 fr
-    choice = random.uniform(0, sum(probabilities_of_choosing_arms))
-    choiceIndex = 0
-    for probability_of_arm in probabilities_of_choosing_arms:
-        if probability_of_arm < 0 or probability_of_arm > 1 or rounded_sum_of_probabilities != 1: #ensures that input is valid probability distribution
-        #if probability_of_arm < 0 or probability_of_arm > 1: #ensures that input is valid probability distribution
-            raise ValueError("This is not a valid probability distribution (you can't pull arm 1 with probability 400)!!")
-        else:
-            choice -= probability_of_arm
-            if choice <= 0:
-                return choiceIndex
-            choiceIndex += 1
+#     update: added a check for if the input is a valid probability distribution or not, if it isn't then it raises a value error
+#     """
+#     rounded_sum_of_probabilities = round(sum(probabilities_of_choosing_arms)) #only reason we're rounding is because sometimes the sum is veryyy close to 1 like 0.9999 so this is just temporary until i know how to make sure the sum is 1 fr
+#     choice = random.uniform(0, sum(probabilities_of_choosing_arms))
+#     choiceIndex = 0
+#     for probability_of_arm in probabilities_of_choosing_arms:
+#         if probability_of_arm < 0 or probability_of_arm > 1 or rounded_sum_of_probabilities != 1: #ensures that input is valid probability distribution
+#         #if probability_of_arm < 0 or probability_of_arm > 1: #ensures that input is valid probability distribution
+#             raise ValueError("This is not a valid probability distribution (you can't pull arm 1 with probability 400)!!")
+#         else:
+#             choice -= probability_of_arm
+#             if choice <= 0:
+#                 return choiceIndex
+#             choiceIndex += 1
         
 class Adversarial_OMD_Environment: #adversarial omd class
     def __init__(self, learning_rate, number_of_arms):
@@ -48,7 +49,8 @@ class Adversarial_OMD_Environment: #adversarial omd class
         self.learning_rate = learning_rate
         self.normalization_factor = 200*math.sqrt(10) #big normalization factor should give better results since it gives us values between 0 and 1
         #self.normalization_factor = 632.46
-        self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results but going to stick with 0 because thats what the paper says
+        #self.estimated_loss_vector = [0.0 for arm in range(number_of_arms)] #initializing the losses as 0 or 1 gives the same results but going to stick with 0 because thats what the paper says
+        self.estimated_loss_vector = np.zeros(number_of_arms)
         self.number_of_arms = number_of_arms
         self.best_arm = random.randint(0, number_of_arms - 1)
     
@@ -71,12 +73,13 @@ class Adversarial_OMD_Environment: #adversarial omd class
         update: i think the problem might be with finding the optimal normalization factor because we literally never exit out of the loop (the runtime is insane (longer than 5 mins)) because
         the difference in the previous and updated normalization factors keeps changing and they are *very* different values so idk what the problem is
         """
-        weights_for_arms = [0.0 for arm in range(number_of_arms)]
+        #weights_for_arms = [0.0 for arm in range(number_of_arms)]
+        weights_for_arms = np.zeros(number_of_arms)
         epsilon = 1.0e-9
         previous_normalization_factor = normalization_factor
         updated_normalization_factor = normalization_factor
-        while True:
-            for arm in range(number_of_arms):
+        # while True:
+        for arm in range(number_of_arms):
                     inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
                     exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
                     weight_of_arm = 4 * exponent_of_inner_product
@@ -88,20 +91,20 @@ class Adversarial_OMD_Environment: #adversarial omd class
                     that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
                     update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
                     figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
-            sum_of_weights = sum(weights_for_arms)
-            numerator = sum_of_weights - 1
-            sum_of_arms_taken_to_power = 0
-            for arm_weight in range(number_of_arms):
-                updated_normalization_factor_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
-                sum_of_arms_taken_to_power += updated_normalization_factor_arm_weight
-            denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
-            updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
-            difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
-            previous_normalization_factor = updated_normalization_factor
-            if(difference_in_normalization_factors < epsilon): #this condition is never met (or takes unbelievably long)
-                break
-            else:
-                continue
+            # sum_of_weights = sum(weights_for_arms)
+            # numerator = sum_of_weights - 1
+            # sum_of_arms_taken_to_power = 0
+            # for arm_weight in range(number_of_arms):
+            #     updated_normalization_factor_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
+            #     sum_of_arms_taken_to_power += updated_normalization_factor_arm_weight
+            # denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
+            # updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
+            # difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
+            # previous_normalization_factor = updated_normalization_factor
+            # if(difference_in_normalization_factors < epsilon): #this condition is never met (or takes unbelievably long)
+            #     break
+            # else:
+            #     continue
         return weights_for_arms, updated_normalization_factor
     
     # def newtons_approximation_for_arm_weights(self, normalization_factor, estimated_loss_vector, learning_rate): 
@@ -157,8 +160,10 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         normalized_weights = self.normalizingWeights(weights_of_arms)
-        action_chosen = drawArm(weights_of_arms)
+        #action_chosen = drawArm(weights_of_arms)
         #action_chosen = drawArm(normalized_weights)
+        #action_chosen = np.random.choice(number_of_arms, p=weights_of_arms)
+        action_chosen = np.random.choice(number_of_arms, p=normalized_weights)
         return action_chosen
     
     def getLoss(self, chosen_arm):
@@ -194,10 +199,10 @@ class Adversarial_OMD_Environment: #adversarial omd class
         """
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
         normalized_weights = self.normalizingWeights(weights_of_arms)
-        if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played
-        #if normalized_weights[chosen_arm] > 0:
-            new_loss_estimate = loss / weights_of_arms[chosen_arm]
-            #new_loss_estimate = loss / normalized_weights[chosen_arm]
+        #if weights_of_arms[chosen_arm] > 0: #this should guarantee that we're only updating arm that's been played
+        if normalized_weights[chosen_arm] > 0:
+            #new_loss_estimate = loss / weights_of_arms[chosen_arm]
+            new_loss_estimate = loss / normalized_weights[chosen_arm]
         else:
             new_loss_estimate = 0
         #self.estimated_loss_vector[chosen_arm] += loss -> what i previously had because adding the loss estimates would result in either a linear graph or graph with negative regret???
@@ -215,7 +220,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
 learning_rate = 0.01
 number_of_arms = 10
 time_horizon = 100000
-simulations = 30
+simulations = 1
 
 for simulation in range(simulations):
     omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)

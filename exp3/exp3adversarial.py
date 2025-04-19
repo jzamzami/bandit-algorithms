@@ -1,6 +1,7 @@
-import random
 import math
 import matplotlib.pyplot as plt
+import random
+import numpy as np
 #just importing libraries lol
 
 #helper function that helps us choose a distribution to sample our actions from
@@ -19,24 +20,25 @@ import matplotlib.pyplot as plt
 #             return i #then we return its position
 #     return len(probs) - 1 #decrement the length of our probability array
 
-def categorical_draw(probs):
-    """ helper function for pulling an arm after finding the probability distribution(the
-    weights for all arms)
-    arguments: 1) probabilities_of_choosing_arms = list of each arm's probability of being pulled
-    after running the EXP3 algorithm
-    returns the arm (index of arm) we're gonna pull
-    """
-    choice = random.uniform(0, sum((probs)))
-    choiceIndex = 0
-    rounded_sum = round(sum(probs))
-    for probability_of_arm in (probs):
-        if probability_of_arm < 0 or probability_of_arm > 1 or rounded_sum != 1:
-            raise ValueError("This is not a valid probability distribution (you can't pull arm 1 with probability 400)!!")
-        else:
-            choice -= probability_of_arm
-            if choice <= 0:
-                return choiceIndex
-            choiceIndex += 1
+# def categorical_draw(probs):
+#     """ helper function for pulling an arm after finding the probability distribution(the
+#     weights for all arms)
+#     arguments: 1) probabilities_of_choosing_arms = list of each arm's probability of being pulled
+#     after running the EXP3 algorithm
+#     returns the arm (index of arm) we're gonna pull
+#     """
+#     choice = random.uniform(0, sum((probs)))
+#     choiceIndex = 0
+#     rounded_sum = round(sum(probs))
+#     for probability_of_arm in (probs):
+#         if probability_of_arm < 0 or probability_of_arm > 1 or rounded_sum != 1:
+#             raise ValueError("This is not a valid probability distribution (you can't pull arm 1 with probability 400)!!")
+#         else:
+#             choice -= probability_of_arm
+#             if choice <= 0:
+#                 return choiceIndex
+#             choiceIndex += 1
+
 
 class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have constructors so makes 
     #the environment easy to think about/create
@@ -44,10 +46,11 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
         #explore/exploit and also array/vector for our loss estimators 
         self.learning_rate = learning_rate
         self.n_arms = n_arms
-        self.weights = [1.0] * n_arms
+        #self.weights = [1.0] * n_arms
+        self.weights = np.ones(n_arms)
         self.best_arm = random.randint(0, n_arms - 1)
 
-    # def initialize(self, n_arms): 
+    # def initialize(self, n_arms):
     #     # self.weights = [1.0 for _ in range(n_arms)] #initializes the weights for the arms to be 1
     #     for arm in range(n_arms):
     #         self.weights.append(1.0)
@@ -55,7 +58,7 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
     def finding_probability_distributions(self):
         n_arms = len(self.weights)
         total_weight = sum(self.weights)
-        probs = [0.0 for i in range(self.n_arms)]
+        probs = np.zeros(n_arms)
         for arm in range(self.n_arms):
             first_term = (1 - self.learning_rate) * (self.weights[arm] / total_weight)
             second_term = (self.learning_rate / n_arms)
@@ -75,7 +78,8 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
         #     update_rule_for_arm = (1 - self.learning_rate) * (self.weights[arm] / total_weight) + (self.learning_rate / n_arms)
         #     probs.append(update_rule_for_arm)
         probs = self.finding_probability_distributions()
-        action_chosen = categorical_draw(probs)
+        # action_chosen = categorical_draw(probs)
+        action_chosen = np.random.choice(n_arms, p=probs)
         return action_chosen #based on this probability we sample an action
 
     def update(self, chosen_arm, loss): #function for updating our array of loss estimators
