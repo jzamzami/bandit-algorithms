@@ -98,7 +98,7 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
         if probs[chosen_arm] > 0:
             loss_estimate = loss / probs[chosen_arm]
         else: #dont return anything (like update losses) if arm isn't chosen
-            0
+            loss_estimate = 0
         growth_factor = math.exp((self.learning_rate / n_arms) * loss_estimate) #growth factor
         self.weights[chosen_arm] *= growth_factor #updating based off of the growth factor
         
