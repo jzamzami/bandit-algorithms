@@ -168,7 +168,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
     
     def update_best_arm(self):
         probability = random.random()
-        if probability <= 0.35:
+        if probability < 0.25:
             best_arm = random.randint(0, number_of_arms - 1)
         else:
             best_arm = self.best_arm
@@ -195,22 +195,38 @@ class Adversarial_OMD_Environment: #adversarial omd class
     #         else:
     #             return 0
     
+    # def getLoss(self, chosen_arm):
+    #     """
+    #     get Loss method for getting the loss of the action we chose to take 
+        
+    #     arguments:
+    #     1) chosen_arm = index of arm we chose to play
+        
+    #     returns:
+    #     1) the loss the agent gets from a specific action
+    #     """
+    #     best_arm = self.update_best_arm()
+    #     loss = 0
+    #     if chosen_arm == best_arm:
+    #         loss += 0
+    #     else:
+    #         loss += 1
+    #     return loss
+    
     def getLoss(self, chosen_arm):
-        """
-        get Loss method for getting the loss of the action we chose to take 
-        
-        arguments:
-        1) chosen_arm = index of arm we chose to play
-        
-        returns:
-        1) the loss the agent gets from a specific action
-        """
         best_arm = self.update_best_arm()
+        probability = random.random()
         loss = 0
         if chosen_arm == best_arm:
-            loss += 0
+            if probability < 0.7:
+                loss += 1
+            else:
+                loss += 0
         else:
-            loss += 1
+            if probability < 0.3:
+                loss += 1
+            else:
+                loss += 0
         return loss
     
     def updateLossVector(self, chosen_arm, loss):
@@ -265,7 +281,7 @@ for simulation in range(simulations):
 plt.plot(regrets, label='Cumulative Regret')
 plt.xlabel('Round')
 plt.ylabel('Cumulative Regret')
-plt.title("OMD Class Adversarial Environment Cumulative Regret Over Time")
+plt.title("OMD Adversarial Cumulative Regret")
 plt.legend()
 plt.grid()
 plt.show()

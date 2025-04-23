@@ -1,3 +1,67 @@
+# import random
+# import numpy as np
+# import matplotlib.pyplot as plt
+
+# class AdversarialEnvironment:
+#     def __init__(self, n_arms):
+#         self.n_arms = n_arms
+#         self.best_arm = random.randint(0, n_arms - 1)
+        
+#     def UCB(self, arm_means, num_arms, time_horizon, delta):
+#         optimal_arm = np.argmax(arm_means)
+#         num_iterations = 1
+#         cumulative_regret = np.zeros([time_horizon, num_iterations])
+#         for iter in range(num_iterations):
+#             ucb = 100 * np.ones(num_arms)
+#             emp_means = np.zeros(num_arms)
+#             num_pulls = np.zeros(num_arms)
+#             for round in range(time_horizon):
+#                 greedy_arm = np.argmax(ucb)
+#                 reward = self.assign_reward(greedy_arm)
+#                 num_pulls[greedy_arm] += 1
+#                 cumulative_regret[round, iter] = arm_means[optimal_arm] - arm_means[greedy_arm]
+#                 emp_means[greedy_arm] += (reward - emp_means[greedy_arm]) / num_pulls[greedy_arm]
+#                 ucb[greedy_arm] = emp_means[greedy_arm] + np.sqrt(2 * np.log(1 / delta) / num_pulls[greedy_arm])
+#         return cumulative_regret
+    
+#     def update_best_arm(self):
+#         probability = random.random()
+#         if probability <= 0.35:
+#             best_arm = random.randint(0, n_arms - 1)
+#         else:
+#             best_arm = self.best_arm
+#         return best_arm
+    
+#     def assign_reward(self, chosen_arm):
+#         best_arm = self.update_best_arm()
+#         reward = 0
+#         if chosen_arm == best_arm:
+#             reward += 1
+#         else:
+#             reward += 0
+#         return reward
+
+# n_arms = 10
+# n_rounds = 100000
+# delta = 0.1
+
+# arm_means = np.random.uniform(0.1, 0.9, n_arms)
+# adversary = AdversarialEnvironment(n_arms)
+
+# for t in range(n_rounds):
+#     chosen_arm = np.argmax(arm_means)
+#     best_arm = adversary.update_best_arm()
+#     cumulative_regret = adversary.UCB(arm_means, n_arms, n_rounds, delta)
+
+# plt.figure(figsize=(10, 6))
+# plt.plot(cumulative_regret, label="Cumulative Regret")
+# plt.xlabel("Round")
+# plt.ylabel("Cumulative Regret")
+# plt.title("UCB Adversarial Cumulative Regret Over Time")
+# plt.legend()
+# plt.grid(True)
+# plt.show()
+
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,7 +117,7 @@ np.random.seed(1)
 
 #same parameters once again
 n_arms = 10 
-n_rounds = 20000
+n_rounds = 100000
 delta = 0.1
 
 #initializing our adversarial environment hehehe
