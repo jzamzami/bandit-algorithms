@@ -16,26 +16,26 @@ class Adversarial_OMD_Environment:
         epsilon = 1.0e-9
         previous_normalization_factor = normalization_factor
         updated_normalization_factor = normalization_factor
-        # while True:
-        for arm in range(number_of_arms):
+        while True:
+            for arm in range(number_of_arms):
                     inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
                     exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
                     weight_of_arm = 4 * exponent_of_inner_product
                     weights_for_arms[arm] = weight_of_arm
-            # sum_of_weights = sum(weights_for_arms)
-            # numerator = sum_of_weights - 1
-            # sum_of_arms_taken_to_power = 0
-            # for arm_weight in range(number_of_arms):
-            #     updated_normalization_factor_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
-            #     sum_of_arms_taken_to_power += updated_normalization_factor_arm_weight
-            # denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
-            # updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
-            # difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
-            # previous_normalization_factor = updated_normalization_factor
-            # if(difference_in_normalization_factors < epsilon): #this condition is never met (or takes unbelievably long)
-            #     break
-            # else:
-            #     continue
+            sum_of_weights = sum(weights_for_arms)
+            numerator = sum_of_weights - 1
+            sum_of_arms_taken_to_power = 0
+            for arm_weight in range(number_of_arms):
+                updated_normalization_factor_arm_weight = math.pow(weights_for_arms[arm_weight], 3/2)
+                sum_of_arms_taken_to_power += updated_normalization_factor_arm_weight
+            denominator = (learning_rate * sum_of_arms_taken_to_power) + epsilon
+            updated_normalization_factor = previous_normalization_factor - (numerator / denominator)
+            difference_in_normalization_factors = abs(updated_normalization_factor - previous_normalization_factor)
+            previous_normalization_factor = updated_normalization_factor
+            if(difference_in_normalization_factors < epsilon):
+                break
+            else:
+                continue
         return weights_for_arms, updated_normalization_factor
     
     def normalizingWeights(self, weights_for_arms):
@@ -53,17 +53,22 @@ class Adversarial_OMD_Environment:
         action_chosen = np.random.choice(number_of_arms, p=normalized_weights)
         return action_chosen
     
-    def getLoss(self, chosen_arm):
-        if chosen_arm == self.best_arm:
-            if random.random() < 0.7:
-                return 1
-            else:
-                return 0
+    def update_best_arm(self):
+        probability = random.random()
+        if probability <= 0.25:
+            best_arm = random.randint(0, number_of_arms - 1)
         else:
-            if random.random() < 0.3:
-                return 1
-            else:
-                return 0
+            best_arm = self.best_arm
+        return best_arm
+    
+    def getLoss(self, chosen_arm):
+        best_arm = self.update_best_arm()
+        loss = 0
+        if chosen_arm == best_arm:
+            loss += 0
+        else:
+            loss += 1
+        return loss
     
     def updateLossVector(self, chosen_arm, loss):
         weights_of_arms, self.normalization_factor = self.newtons_approximation_for_arm_weights(self.normalization_factor, self.estimated_loss_vector, self.learning_rate)
@@ -76,10 +81,10 @@ class Adversarial_OMD_Environment:
             new_loss_estimate = 0
         self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
-learning_rate = 0.01
+learning_rate = 0.5
 number_of_arms = 10
 time_horizon = 100000
-simulations = 30
+simulations = 1
 
 for simulation in range(simulations):
     omd_adversarial = Adversarial_OMD_Environment(learning_rate, number_of_arms)
@@ -88,9 +93,10 @@ for simulation in range(simulations):
 
     for round_played in range(time_horizon):
         chosen_arm = omd_adversarial.selectArm()
+        best_arm = omd_adversarial.update_best_arm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd_adversarial.updateLossVector(chosen_arm, loss) 
+        omd_adversarial.updateLossVector(chosen_arm, loss)
         optimal_loss = (round_played + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 

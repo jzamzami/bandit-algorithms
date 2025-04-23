@@ -18,8 +18,7 @@ def UCB(arm_means, num_arms, time_horizon, delta):
             num_pulls[greedy_arm] += 1 
             cumulative_regret[round, iter] = arm_means[optimal_arm] - arm_means[greedy_arm]
             emp_means[greedy_arm] += (reward - emp_means[greedy_arm]) / num_pulls[greedy_arm]
-            ucb[greedy_arm] = emp_means[greedy_arm] + np.sqrt(2 * np.log(1 / delta
-        ) / num_pulls[greedy_arm])
+            ucb[greedy_arm] = emp_means[greedy_arm] + np.sqrt(2 * np.log(1 / delta) / num_pulls[greedy_arm])
     return cumulative_regret
 
 #creating class to simulate adversarial environment
@@ -77,7 +76,7 @@ for t in range(n_rounds):
     
     #finding cumulative regret -> diff between optimal arm and chosen arm
     optimal_reward = (t + 1) * 0.7  #here we're assuming we fr get the reward from the optimal arm
-    cumulative_regret.append(optimal_reward - cumulative_reward) #add this rounds regret to the
+    cumulative_regret.append(optimal_reward - cumulative_reward) #yea add this rounds regret to the
     #array of cumulative regrets
 
 #plotting graphs

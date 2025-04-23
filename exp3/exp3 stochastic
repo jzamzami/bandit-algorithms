@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import random
 import numpy as np
 
-class Adversarial_Exp3:
+class stochastic_Exp3:
     def __init__(self, learning_rate, n_arms):
         self.learning_rate = learning_rate
         self.n_arms = n_arms
         self.weights = np.ones(n_arms)
-        self.best_arm = random.randint(0, n_arms - 1)
+        self.arm_means = np.random.binomial(0.1, 0.9, n_arms)
 
     def finding_probability_distributions(self):
         n_arms = len(self.weights)
@@ -25,24 +25,23 @@ class Adversarial_Exp3:
         probs = self.finding_probability_distributions()
         action_chosen = np.random.choice(n_arms, p=probs)
         return action_chosen
-        
-    def update_best_arm(self):
-        probability = random.random()
-        if probability <= 0.35:
-            best_arm = random.randint(0, n_arms - 1)
-        else:
-            best_arm = self.best_arm
-        return best_arm
     
     def assign_reward(self, chosen_arm):
-        best_arm = self.update_best_arm()
+        best_arm = np.argmax(self.arm_means)
+        probablity = random.random()
         reward = 0
         if chosen_arm == best_arm:
-            reward += 1
+            if probablity < 0.7:
+                reward += 1
+            else:
+                reward += 0
         else:
-            reward += 0
+            if probablity < 0.3:
+                reward += 1
+            else:
+                reward += 0
         return reward
-            
+    
     def update(self, chosen_arm, reward):
         probs = self.finding_probability_distributions()
         if probs[chosen_arm] > 0:
@@ -54,27 +53,26 @@ class Adversarial_Exp3:
 
 n_arms = 10
 n_rounds = 100000
-learning_rate = 0.005
+learning_rate = 0.01
 
-adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
+stochasticExp3Environment = stochastic_Exp3(learning_rate, n_arms)
 regret = []
 cumulative_reward = 0
 
 for t in range(n_rounds):
-    chosen_arm = adversarialExp3Environment.select_arm()
-    best_arm = adversarialExp3Environment.update_best_arm()
-    reward = adversarialExp3Environment.assign_reward(chosen_arm)
-    adversarialExp3Environment.update(chosen_arm, reward)
+    chosen_arm = stochasticExp3Environment.select_arm()
+    reward = stochasticExp3Environment.assign_reward(chosen_arm)
+    stochasticExp3Environment.update(chosen_arm, reward)
+    
     cumulative_reward += reward
     optimal_reward = (t + 1) * 0.7
-    regret_for_this_round = optimal_reward - cumulative_reward
-    regret.append(regret_for_this_round)
+    regret.append(optimal_reward - cumulative_reward) 
 
 plt.figure(figsize=(10, 6))
 plt.plot(regret, label="Cumulative Regret")
 plt.xlabel("Round")
 plt.ylabel("Cumulative Regret")
-plt.title("Exp3 Adversarial Cumulative Regret Over Time")
+plt.title("Exp3 stochastic Cumulative Regret Over Time")
 plt.legend()
 plt.grid(True)
 plt.show()

@@ -166,6 +166,35 @@ class Adversarial_OMD_Environment: #adversarial omd class
         action_chosen = np.random.choice(number_of_arms, p=normalized_weights)
         return action_chosen
     
+    def update_best_arm(self):
+        probability = random.random()
+        if probability <= 0.35:
+            best_arm = random.randint(0, number_of_arms - 1)
+        else:
+            best_arm = self.best_arm
+        return best_arm
+    
+    # def getLoss(self, chosen_arm):
+    #     """
+    #     get Loss method for getting the loss of the action we chose to take 
+        
+    #     arguments:
+    #     1) chosen_arm = index of arm we chose to play
+        
+    #     returns:
+    #     1) the loss the agent gets from a specific action
+    #     """
+    #     if chosen_arm == self.best_arm:
+    #         if random.random() < 0.7:
+    #             return 1
+    #         else:
+    #             return 0
+    #     else:
+    #         if random.random() < 0.3:
+    #             return 1
+    #         else:
+    #             return 0
+    
     def getLoss(self, chosen_arm):
         """
         get Loss method for getting the loss of the action we chose to take 
@@ -176,16 +205,13 @@ class Adversarial_OMD_Environment: #adversarial omd class
         returns:
         1) the loss the agent gets from a specific action
         """
-        if chosen_arm == self.best_arm:
-            if random.random() < 0.7:
-                return 1
-            else:
-                return 0
+        best_arm = self.update_best_arm()
+        loss = 0
+        if chosen_arm == best_arm:
+            loss += 0
         else:
-            if random.random() < 0.3:
-                return 1
-            else:
-                return 0
+            loss += 1
+        return loss
     
     def updateLossVector(self, chosen_arm, loss):
         """
@@ -217,7 +243,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
         update: adding the loss estimates kind of works now! (not the best looking graph but like better than before)
         """
 
-learning_rate = 0.01
+learning_rate = 0.005
 number_of_arms = 10
 time_horizon = 100000
 simulations = 1
@@ -229,9 +255,10 @@ for simulation in range(simulations):
 
     for round_played in range(time_horizon):
         chosen_arm = omd_adversarial.selectArm()
+        best_arm = omd_adversarial.update_best_arm()
         loss = omd_adversarial.getLoss(chosen_arm)
         cumulative_loss += loss
-        omd_adversarial.updateLossVector(chosen_arm, loss) 
+        omd_adversarial.updateLossVector(chosen_arm, loss)
         optimal_loss = (round_played + 1) * 0.3
         regrets.append(cumulative_loss - optimal_loss)
 
