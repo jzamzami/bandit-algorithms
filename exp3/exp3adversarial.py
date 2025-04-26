@@ -89,6 +89,22 @@ class Adversarial_Exp3: #class for our exp3 algortihm -> class lets us have cons
         else:
             best_arm = self.best_arm
         return best_arm
+        
+    # def assign_reward(self, chosen_arm):
+    #     best_arm = self.update_best_arm()
+    #     probability = random.random()
+    #     reward = 0
+    #     if chosen_arm == best_arm:
+    #         if probability < 0.7:
+    #             reward += 1
+    #         else:
+    #             reward += 0
+    #     else:
+    #         if probability < 0.3:
+    #             reward += 1
+    #         else:
+    #             reward += 0
+    #     return reward
     
     def assign_reward(self, chosen_arm):
         best_arm = self.update_best_arm()
@@ -141,9 +157,15 @@ for t in range(n_rounds):
     
     cumulative_reward += reward
     optimal_reward = (t + 1) * 0.7
-    regret.append(optimal_reward - cumulative_reward) 
+    """note: optimal_reward was defined this way because it was supposed to be like what if the agent
+    got reward of 1 after each round as that's the highest possible reward (then the times 0.7 is because
+    that was the probability of getting that reward (or actually it was like the best case scenario was getting
+    optimal arm then with probability 70% you'd get the good reward))"""
+    regret.append(optimal_reward - cumulative_reward)
     """i know this says reward but its not using rewardes its still using rewards so need 
     to change it to rewardes instead fr"""
+    
+# print(regret)
     
     # chosen_arm = adversarialExp3Environment.select_arm()
     # reward = adversarialExp3Environment.assign_reward(chosen_arm)
@@ -152,6 +174,49 @@ for t in range(n_rounds):
     # cumulative_reward += reward
     # optimal_reward = 1 - ((t + 1) * 0.7)
     # regret.append(cumulative_reward - optimal_reward)
+    
+# adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
+# regret = []
+# # cumulative_reward = 0
+# cumulative_reward = []
+
+# for round_played in range(n_rounds):
+#     chosen_arm = adversarialExp3Environment.select_arm()
+#     best_arm = adversarialExp3Environment.update_best_arm()
+#     reward = adversarialExp3Environment.assign_reward(chosen_arm)
+#     adversarialExp3Environment.update(chosen_arm, reward)
+#     cumulative_reward.append(reward)
+# # print(cumulative_reward)
+    
+# optimal_reward = np.max(cumulative_reward)
+# regrets = []
+# for round_played in range(n_rounds):
+#     regret = optimal_reward - cumulative_reward[round_played]
+#     regrets.append(regret)
+    
+# print(regrets)
+
+# print(cumulative_reward)
+# optimal_reward = np.max(cumulative_reward)
+# print(optimal_reward)
+# regret = optimal_reward - reward_observed
+
+# """ 
+# optimal_reward = np.max(cumulative_reward)
+# regrets = []
+# cumulative_reward = 0 
+# for round in range time_horizon:
+#     cumulative_reward += reward 
+#     regret = optimal_reward - reward
+#     regrets.append(regret) 
+# """
+
+"""
+need to keep track of two things: 1) the cumulative reward (like the reward we accumulate after each round)
+2) our reward vector (need to keep track of the reward vector so we know which arm yields best reward)
+"""
+
+
 
 plt.figure(figsize=(10, 6))
 plt.plot(regret, label="Cumulative Regret")

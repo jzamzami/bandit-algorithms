@@ -66,7 +66,7 @@ for t in range(n_rounds):
     
     cumulative_reward += reward
     optimal_reward = (t + 1) * 0.7
-    regret.append(optimal_reward - cumulative_reward) 
+    regret.append(optimal_reward - cumulative_reward)
 
 plt.figure(figsize=(10, 6))
 plt.plot(regret, label="Cumulative Regret")
