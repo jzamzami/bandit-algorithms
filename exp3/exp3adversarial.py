@@ -216,6 +216,49 @@ need to keep track of two things: 1) the cumulative reward (like the reward we a
 2) our reward vector (need to keep track of the reward vector so we know which arm yields best reward)
 """
 
+""" 
+for regret calculation we are NOT the agent (we are an all knowing entity 3shan e7na n3rf kol shy) so basically 3shan e7na
+n3rf kol shy fa n3rf ayat arm 7ayidina a7san reward so 3shan kida lazem we keep track of the rewards of each arm after every round
+so y3ni ka2ano we're playing in a full feedback setting w mo bandit setting so alzibda:
+    1) after every round yikon fe a reward vector for every arm's rewards (mdri lw we implement this using a dictionary yikoon a7san aw shy)
+    2) w b3den after playing ALL the rounds (yikoon 5ala9 the time horizon) nishoof ayat arm was usually the best one most of the time
+    3) w for the optimal reward it's basically na5od hada albest arm w we find esh alreward lw a5tarnaha every round (so the optimal policy
+    would've just been consistently choosing hada albest arm for every round) so we take this reward
+    4) w for each round's regret its just gonna be the optimal reward - actual observed reward (note: aham shy iftakri inno
+    the observed reward for each round is like adding the rewards from previous rounds kaman bc they dont just kida disapear)
+    5) w obvi append the regret for each round into an array so then you just plot that obvi
+
+tyeb whats going to be shwya yl5b6:
+    1) i can easily keep track of the cummulative reward bs how do i know which arm consistently gave me the best arm
+    2) w how the hell do i go back in time to know what that arm's reward was in each round 
+    -> mdri a7is this makes sense in theory bs how do i implement this
+    
+variables needed (all the code here is just pseudocode so i can think of how to find these values):
+1) reward vector -> array of arrays that contains the rewards of each arm from every round:
+    reward_vector = []
+    reward_vector_for_each_round = []
+    for round in range(time_horizon):
+        for arm in range(number_of_arms):
+            reward = get_reward
+            reward_vector_for_each_round.append(reward)
+        reward_vector.append(reward_vector_for_each_round)
+    return reward_vector
+    
+2) optimal arm -> index of arm that consistently gives us best rewards (shloon i find optimal arm from this
+reward vector):
+best_arm_in_each_round = []
+for round in range(len(reward_vector_for_each_round)):
+    max_reward_in_this_round = max(reward_vector)
+    best_arm_in_round = reward_vector_for_each_round.index(max_reward_in_this_round)
+    best_arm_in_each_round.append(best_arm_in_round)
+best_arms_overall = np.bincount(best_arm_in_each_round)
+best_arm_overall = np.argmax(best_arms_overall) #best_arm_overall would then just be our optimal arm
+
+3) rewards of that optimal arm -> so now that we have our optimal arm lazem we go back in time to see what rewards that optimal arm
+would have given us:
+
+"""
+
 
 
 plt.figure(figsize=(10, 6))
