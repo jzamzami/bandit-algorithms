@@ -253,13 +253,22 @@ for round in range(len(reward_vector_for_each_round)):
     best_arm_in_each_round.append(best_arm_in_round)
 best_arms_overall = np.bincount(best_arm_in_each_round)
 best_arm_overall = np.argmax(best_arms_overall) #best_arm_overall would then just be our optimal arm
+return best_arm_overall
 
 3) rewards of that optimal arm -> so now that we have our optimal arm lazem we go back in time to see what rewards that optimal arm
-would have given us:
-
+would have given us (and like actual regret calculation):
+cumulative_best_reward = 0
+cumulative_actual_reward = 0
+regrets = []
+for round in range(time_horizon):
+    best_reward = reward_vector_for_each_round[best_arm_overall]
+    actual_reward = reward_vector_for_each_round[arm_pulled]
+    cumulative_best_reward += best_reward
+    cumulative_actual_reward += actual_reward
+    regret_for_this_round = cumulative_best_reward - cumulative_actual_reward
+    regrets.append(regret_for_this_round)
+return regrets
 """
-
-
 
 plt.figure(figsize=(10, 6))
 plt.plot(regret, label="Cumulative Regret")
