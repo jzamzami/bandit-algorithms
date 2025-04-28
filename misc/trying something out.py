@@ -46,7 +46,6 @@ class Adversarial_Exp3:
 n_arms = 10
 time_horizon = 20000
 learning_rate = 0.02
-
 adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
 
 rewards_for_all_rounds = np.zeros((time_horizon, n_arms))
