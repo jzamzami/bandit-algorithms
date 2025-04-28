@@ -34,7 +34,7 @@ class Adversarial_Exp3:
             best_arm = self.best_arm
         return best_arm
     
-    def update(self, chosen_arm, reward_vector):
+    def update_arm_reward_estimate(self, chosen_arm, reward_vector):
         probs = self.finding_probability_distributions()
         if probs[chosen_arm] > 0:
             reward_estimate = reward_vector[chosen_arm] / probs[chosen_arm]
@@ -44,7 +44,7 @@ class Adversarial_Exp3:
         self.weights[chosen_arm] *= growth_factor
 
 n_arms = 10
-time_horizon = 10
+time_horizon = 20000
 learning_rate = 0.02
 
 adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
@@ -73,23 +73,22 @@ cumulative_optimal_reward = 0
 cumulative_reward = 0
 regrets = []
 
-for reward_vector in range(len(rewards_for_all_rounds)): #look at the logic of this for loop again
-    for round_played in range(len(rewards_for_all_rounds[reward_vector])):
-        round_vector = rewards_for_all_rounds[reward_vector]
-        chosen_arm = adversarialExp3Environment.select_arm()
-        adversarialExp3Environment.update(chosen_arm, rewards_for_all_rounds[reward_vector])
-        optimal_reward = round_vector[optimal_arm]
-        actual_reward = round_vector[chosen_arm]
-        cumulative_optimal_reward += optimal_reward
-        cumulative_reward += actual_reward
-        regret_for_this_round = cumulative_optimal_reward - cumulative_reward
+for round_reward_vector in range(len(rewards_for_all_rounds)):
+    this_rounds_reward_vector = rewards_for_all_rounds[round_reward_vector]
+    chosen_arm = adversarialExp3Environment.select_arm()
+    adversarialExp3Environment.update_arm_reward_estimate(chosen_arm, this_rounds_reward_vector)
+    optimal_reward = this_rounds_reward_vector[optimal_arm]
+    actual_reward = this_rounds_reward_vector[chosen_arm]
+    cumulative_optimal_reward += optimal_reward
+    cumulative_reward += actual_reward
+    regret_for_this_round = cumulative_optimal_reward - cumulative_reward
     regrets.append(regret_for_this_round)
 
 plt.figure(figsize=(10, 6))
 plt.plot(regrets, label="Cumulative Regret")
 plt.xlabel("Round")
 plt.ylabel("Cumulative Regret")
-plt.title("Exp3 Adversarial Cumulative Regret Over Time")
+plt.title("Exp3 Adversarial Cumulative Regret")
 plt.legend()
 plt.grid(True)
 plt.show()
