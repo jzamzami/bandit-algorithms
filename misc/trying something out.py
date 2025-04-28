@@ -28,20 +28,11 @@ class Adversarial_Exp3:
     
     def update_best_arm(self):
         probability = random.random()
-        if probability <= 0.35:
+        if probability <= 0.45:
             best_arm = random.randint(0, n_arms - 1)
         else:
             best_arm = self.best_arm
         return best_arm
-    
-    def assign_reward(self, chosen_arm):
-        best_arm = self.update_best_arm()
-        reward = 0
-        if chosen_arm == best_arm:
-            reward += 1
-        else:
-            reward += 0
-        return reward
     
     def update(self, chosen_arm, reward_vector):
         probs = self.finding_probability_distributions()
@@ -53,8 +44,8 @@ class Adversarial_Exp3:
         self.weights[chosen_arm] *= growth_factor
 
 n_arms = 10
-time_horizon = 10000
-learning_rate = 0.005
+time_horizon = 10
+learning_rate = 0.02
 
 adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
 
@@ -82,7 +73,7 @@ cumulative_optimal_reward = 0
 cumulative_reward = 0
 regrets = []
 
-for reward_vector in range(len(rewards_for_all_rounds)):
+for reward_vector in range(len(rewards_for_all_rounds)): #look at the logic of this for loop again
     for round_played in range(len(rewards_for_all_rounds[reward_vector])):
         round_vector = rewards_for_all_rounds[reward_vector]
         chosen_arm = adversarialExp3Environment.select_arm()
@@ -92,7 +83,7 @@ for reward_vector in range(len(rewards_for_all_rounds)):
         cumulative_optimal_reward += optimal_reward
         cumulative_reward += actual_reward
         regret_for_this_round = cumulative_optimal_reward - cumulative_reward
-        regrets.append(regret_for_this_round)
+    regrets.append(regret_for_this_round)
 
 plt.figure(figsize=(10, 6))
 plt.plot(regrets, label="Cumulative Regret")
