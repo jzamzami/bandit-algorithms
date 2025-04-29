@@ -57,6 +57,7 @@ class stochastic_OMD_Environment:
 number_of_arms = 10
 time_horizon = 100000
 learning_rate = 0.008
+#this one is shwya 3bee6 mdri leh 
 
 stochasticExp3Environment = stochastic_OMD_Environment(learning_rate, number_of_arms)
 best_arm = stochasticExp3Environment.update_best_arm()
