@@ -282,12 +282,12 @@ number_of_arms = 10
 time_horizon = 100000
 learning_rate = 0.005
 
-adversarialExp3Environment = Adversarial_OMD_Environment(learning_rate, number_of_arms)
+adversarialOMDEnvironment = Adversarial_OMD_Environment(learning_rate, number_of_arms)
 
 losses_for_all_rounds = np.zeros((time_horizon, number_of_arms))
 for round_played in range(time_horizon):
     losses_for_each_round = np.zeros(number_of_arms)
-    best_arm = adversarialExp3Environment.update_best_arm()
+    best_arm = adversarialOMDEnvironment.update_best_arm()
     for arm in range(number_of_arms):
         loss_of_arm = 0
         if arm == best_arm:
@@ -310,8 +310,8 @@ regrets = []
 
 for round_loss_vector in range(len(losses_for_all_rounds)):
     this_rounds_loss_vector = losses_for_all_rounds[round_loss_vector]
-    chosen_arm = adversarialExp3Environment.selectArm()
-    adversarialExp3Environment.updateLossVector(chosen_arm, this_rounds_loss_vector)
+    chosen_arm = adversarialOMDEnvironment.selectArm()
+    adversarialOMDEnvironment.updateLossVector(chosen_arm, this_rounds_loss_vector)
     optimal_loss = this_rounds_loss_vector[optimal_arm]
     actual_loss = this_rounds_loss_vector[chosen_arm]
     cumulative_optimal_loss += optimal_loss

@@ -23,7 +23,7 @@ def UCB(arm_means, num_arms, time_horizon, delta):
             #that's chosen most of the time -> whole point of the algo (thats also why its called the
             #"greedy arm" since in theory the arm with the highest ucb should be the best one,
             #since the agent doesn't know the optimal arm this is their way of having a best arm)
-            reward = np.random.uniform(1, arm_means[greedy_arm]) #generating a random uniformly distributed
+            reward = np.random.binomial(1, arm_means[greedy_arm]) #generating a random uniformly distributed
             #reward for the greedy arm
             num_pulls[greedy_arm] += 1 #increment the number of times the arm has been pulled
             regret[round, iter] = arm_means[optimal_arm] - arm_means[greedy_arm] #now we can fr 
@@ -39,8 +39,11 @@ def UCB(arm_means, num_arms, time_horizon, delta):
 #parameters for our simulation of the UCB algorithm
 num_arms = 10  #number of arms
 time_horizon = 100000  #time horizon -> basically how many rounds are we playing in total
-arm_means = np.random.uniform(0.1, 0.9, num_arms)  #generate uniformly distributed arm means
+arm_means = np.random.uniform(0, 1, num_arms)
+# arm_means = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+#generate uniformly distributed arm means
 #between 0.1-0.9
+# arm_means = np.random.binomial(num_arms, )
 delta = 0.1 #tiny exploration parameter -> explore like 10% of the time
 
 #running the algorithm to find the regret for this given simulating

@@ -28,7 +28,7 @@ class Adversarial_Exp3:
     
     def update_best_arm(self):
         probability = random.random()
-        if probability <= 0.45:
+        if probability <= 0.35:
             best_arm = random.randint(0, n_arms - 1)
         else:
             best_arm = self.best_arm
@@ -45,7 +45,7 @@ class Adversarial_Exp3:
 
 n_arms = 10
 time_horizon = 100000
-learning_rate = 0.01
+learning_rate = 0.005
 adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
 
 rewards_for_all_rounds = np.zeros((time_horizon, n_arms))
