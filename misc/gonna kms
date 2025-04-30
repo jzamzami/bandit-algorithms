@@ -88,6 +88,8 @@ plt.legend()
 plt.grid()
 plt.show()
 
+
+
 # iterations = 20
 # blah = [1.0 for _ in range(iterations)]
 

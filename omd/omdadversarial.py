@@ -168,7 +168,7 @@ class Adversarial_OMD_Environment: #adversarial omd class
     
     def update_best_arm(self):
         probability = random.random()
-        if probability < 0.35:
+        if probability <= 0.35:
             best_arm = random.randint(0, number_of_arms - 1)
         else:
             best_arm = self.best_arm

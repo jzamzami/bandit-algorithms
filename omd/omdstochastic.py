@@ -89,6 +89,7 @@ for round_played in range(time_horizon):
     cumulative_loss += loss_for_arm
     cumulative_optimal_loss += loss_for_optimal_arm
     regret_for_this_round = cumulative_loss - cumulative_optimal_loss
+    # regret_for_this_round = arm_means[optimal_arm] - arm_means[chosen_arm]
     regrets.append(regret_for_this_round)
     
 #     print("this is the loss for our arm", cumulative_loss)

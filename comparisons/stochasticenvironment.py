@@ -20,14 +20,6 @@ def UCB(arm_means, num_arms, time_horizon, delta):
             ucb[greedy_arm] = emp_means[greedy_arm] + np.sqrt(2 * np.log(1 / delta) / num_pulls[greedy_arm])
     return regret
 
-num_arms = 10
-time_horizon = 100000
-arm_means = np.random.uniform(0, 1, num_arms)
-delta = 0.005
-regret = UCB(arm_means, num_arms, time_horizon, delta)  
-
-ucb_cumulative_regret = np.cumsum(np.mean(regret, axis=1))
-
 class stochastic_OMD_Environment:
     def __init__(self, learning_rate, number_of_arms):
         self.learning_rate = learning_rate
@@ -75,6 +67,14 @@ class stochastic_OMD_Environment:
             new_loss_estimate = 0
         self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
+num_arms = 10
+time_horizon = 100000
+arm_means = np.random.uniform(0, 1, num_arms)
+delta = 0.005
+regret = UCB(arm_means, num_arms, time_horizon, delta)  
+
+ucb_cumulative_regret = np.cumsum(np.mean(regret, axis=1))
+
 number_of_arms = 10
 time_horizon = 100000
 learning_rate = 0.005
@@ -103,7 +103,7 @@ plt.plot(ucb_cumulative_regret, label="UCB Cumulative Regret", color = "green")
 plt.plot(regrets, label="OMD Cumulative Regret", color = "blue")
 plt.xlabel("Round")
 plt.ylabel("Cumulative Regret")
-plt.title("UCB vs OMD Stochastic Cumulative Regret Over Time")
+plt.title("UCB vs OMD Stochastic Cumulative Regret")
 plt.legend()
 plt.grid(True)
 plt.show()

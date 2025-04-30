@@ -43,45 +43,6 @@ class Adversarial_Exp3:
         growth_factor = math.exp((self.learning_rate / n_arms) * reward_estimate)
         self.weights[chosen_arm] *= growth_factor
 
-n_arms = 10
-time_horizon = 100000
-learning_rate = 0.005
-adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
-
-rewards_for_all_rounds = np.zeros((time_horizon, n_arms))
-for round_played in range(time_horizon):
-    rewards_for_each_round = np.zeros(n_arms)
-    best_arm = adversarialExp3Environment.update_best_arm()
-    for arm in range(n_arms):
-        reward_of_arm = 0
-        if arm == best_arm:
-            reward_of_arm += 1
-        else:
-            reward_of_arm += 0
-        rewards_for_each_round[arm] = reward_of_arm
-    rewards_for_all_rounds[round_played] = rewards_for_each_round
-    
-best_arms_in_each_round = []
-for reward_vector in range(len(rewards_for_all_rounds)):
-    best_arm_in_this_round = np.argmax(rewards_for_all_rounds[reward_vector])
-    best_arms_in_each_round.append(best_arm_in_this_round)
-frequency_of_each_best_arm = np.bincount(best_arms_in_each_round)
-optimal_arm = np.argmax(frequency_of_each_best_arm)
-
-cumulative_optimal_reward = 0
-cumulative_reward = 0
-exp3_regrets = []
-
-for round_reward_vector in range(len(rewards_for_all_rounds)):
-    this_rounds_reward_vector = rewards_for_all_rounds[round_reward_vector]
-    chosen_arm = adversarialExp3Environment.select_arm()
-    adversarialExp3Environment.update_arm_reward_estimate(chosen_arm, this_rounds_reward_vector)
-    optimal_reward = this_rounds_reward_vector[optimal_arm]
-    actual_reward = this_rounds_reward_vector[chosen_arm]
-    cumulative_optimal_reward += optimal_reward
-    cumulative_reward += actual_reward
-    regret_for_this_round = cumulative_optimal_reward - cumulative_reward
-    exp3_regrets.append(regret_for_this_round)
 
 class Adversarial_OMD_Environment:
     def __init__(self, learning_rate, number_of_arms):
@@ -125,7 +86,7 @@ class Adversarial_OMD_Environment:
     
     def update_best_arm(self):
         probability = random.random()
-        if probability < 0.7:
+        if probability <= 0.35:
             best_arm = random.randint(0, number_of_arms - 1)
         else:
             best_arm = self.best_arm
@@ -139,16 +100,55 @@ class Adversarial_OMD_Environment:
             new_loss_estimate = 0
         self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
+n_arms = 10
+time_horizon = 100000
+learning_rate = 0.005
+adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
+
 number_of_arms = 10
 time_horizon = 100000
 learning_rate = 0.005
+adversarialOMDEnvironment = Adversarial_OMD_Environment(learning_rate, number_of_arms)
 
-adversarialExp3Environment = Adversarial_OMD_Environment(learning_rate, number_of_arms)
+rewards_for_all_rounds = np.zeros((time_horizon, n_arms))
+for round_played in range(time_horizon):
+    rewards_for_each_round = np.zeros(n_arms)
+    best_arm = adversarialExp3Environment.update_best_arm()
+    for arm in range(n_arms):
+        reward_of_arm = 0
+        if arm == best_arm:
+            reward_of_arm += 1
+        else:
+            reward_of_arm += 0
+        rewards_for_each_round[arm] = reward_of_arm
+    rewards_for_all_rounds[round_played] = rewards_for_each_round
+    
+best_arms_in_each_round = []
+for reward_vector in range(len(rewards_for_all_rounds)):
+    best_arm_in_this_round = np.argmax(rewards_for_all_rounds[reward_vector])
+    best_arms_in_each_round.append(best_arm_in_this_round)
+frequency_of_each_best_arm = np.bincount(best_arms_in_each_round)
+optimal_arm = np.argmax(frequency_of_each_best_arm)
+
+cumulative_optimal_reward = 0
+cumulative_reward = 0
+exp3_regrets = []
+
+for round_reward_vector in range(len(rewards_for_all_rounds)):
+    this_rounds_reward_vector = rewards_for_all_rounds[round_reward_vector]
+    chosen_arm = adversarialExp3Environment.select_arm()
+    adversarialExp3Environment.update_arm_reward_estimate(chosen_arm, this_rounds_reward_vector)
+    optimal_reward = this_rounds_reward_vector[optimal_arm]
+    actual_reward = this_rounds_reward_vector[chosen_arm]
+    cumulative_optimal_reward += optimal_reward
+    cumulative_reward += actual_reward
+    regret_for_this_round = cumulative_optimal_reward - cumulative_reward
+    exp3_regrets.append(regret_for_this_round)
 
 losses_for_all_rounds = np.zeros((time_horizon, number_of_arms))
 for round_played in range(time_horizon):
     losses_for_each_round = np.zeros(number_of_arms)
-    best_arm = adversarialExp3Environment.update_best_arm()
+    best_arm = adversarialOMDEnvironment.update_best_arm()
     for arm in range(number_of_arms):
         loss_of_arm = 0
         if arm == best_arm:
@@ -171,8 +171,8 @@ regrets = []
 
 for round_loss_vector in range(len(losses_for_all_rounds)):
     this_rounds_loss_vector = losses_for_all_rounds[round_loss_vector]
-    chosen_arm = adversarialExp3Environment.selectArm()
-    adversarialExp3Environment.updateLossVector(chosen_arm, this_rounds_loss_vector)
+    chosen_arm = adversarialOMDEnvironment.selectArm()
+    adversarialOMDEnvironment.updateLossVector(chosen_arm, this_rounds_loss_vector)
     optimal_loss = this_rounds_loss_vector[optimal_arm]
     actual_loss = this_rounds_loss_vector[chosen_arm]
     cumulative_optimal_loss += optimal_loss

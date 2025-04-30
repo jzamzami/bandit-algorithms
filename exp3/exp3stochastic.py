@@ -52,24 +52,54 @@ class stochastic_Exp3:
         self.weights[chosen_arm] *= growth_factor
 
 n_arms = 10
-n_rounds = 100000
-learning_rate = 0.01
+time_horizon = 100000
+learning_rate = 0.005
+#this one is shwya 3bee6 mdri leh
 
-stochasticExp3Environment = stochastic_Exp3(learning_rate, n_arms)
-regret = []
+stochasticOMDEnvironment = stochastic_Exp3(learning_rate, n_arms)
+# best_arm = stochasticOMDEnvironment.update_best_arm()
+# arm_means = np.random.uniform(0, 1, n_arms)
+alpha = np.random.randint(1, n_arms+1, n_arms)
+arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
+# arm_means = stochasticOMDEnvironment.theseAreOurWeights()
+rewardes_for_arm_in_each_round = []
+regrets = []
 cumulative_reward = 0
+cumulative_optimal_reward = 0
 
-for t in range(n_rounds):
-    chosen_arm = stochasticExp3Environment.select_arm()
-    reward = stochasticExp3Environment.assign_reward(chosen_arm)
-    stochasticExp3Environment.update(chosen_arm, reward)
+for round_played in range(time_horizon):
+    chosen_arm = stochasticOMDEnvironment.select_arm()
+    reward_for_arm = np.random.binomial(1, arm_means[chosen_arm]) #np.random gives us 0 or 1 reward based on probability of success
+    rewardes_for_arm_in_each_round.append(reward_for_arm)
+    stochasticOMDEnvironment.update(chosen_arm, rewardes_for_arm_in_each_round[round_played])
+    optimal_arm = np.argmax(arm_means)
+    reward_for_optimal_arm = np.random.binomial(1, arm_means[optimal_arm])
+    cumulative_reward += reward_for_arm
+    cumulative_optimal_reward += reward_for_optimal_arm
+    regret_for_this_round = cumulative_optimal_reward - cumulative_reward
+    # regret_for_this_round = arm_means[optimal_arm] - arm_means[chosen_arm]
+    regrets.append(regret_for_this_round)
     
-    cumulative_reward += reward
-    optimal_reward = (t + 1) * 0.7
-    regret.append(optimal_reward - cumulative_reward)
+    
+# n_arms = 10
+# n_rounds = 100000
+# learning_rate = 0.01
+
+# stochasticExp3Environment = stochastic_Exp3(learning_rate, n_arms)
+# regret = []
+# cumulative_reward = 0
+
+# for t in range(n_rounds):
+#     chosen_arm = stochasticExp3Environment.select_arm()
+#     reward = stochasticExp3Environment.assign_reward(chosen_arm)
+#     stochasticExp3Environment.update(chosen_arm, reward)
+    
+#     cumulative_reward += reward
+#     optimal_reward = (t + 1) * 0.7
+#     regret.append(optimal_reward - cumulative_reward)
 
 plt.figure(figsize=(10, 6))
-plt.plot(regret, label="Cumulative Regret")
+plt.plot(regrets, label="Cumulative Regret")
 plt.xlabel("Round")
 plt.ylabel("Cumulative Regret")
 plt.title("Exp3 stochastic Cumulative Regret Over Time")

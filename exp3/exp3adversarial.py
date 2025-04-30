@@ -272,7 +272,7 @@ return regrets
 
 n_arms = 10
 time_horizon = 100000
-learning_rate = 0.01
+learning_rate = 0.005
 
 adversarialExp3Environment = Adversarial_Exp3(learning_rate, n_arms)
 
