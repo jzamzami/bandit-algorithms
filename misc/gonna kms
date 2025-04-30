@@ -142,4 +142,3 @@ plt.show()
         #                                                         for q in blah:
         #                                                             blah.append(17.0)
         #                                                             print(blah)
-        

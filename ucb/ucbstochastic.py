@@ -39,7 +39,9 @@ def UCB(arm_means, num_arms, time_horizon, delta):
 #parameters for our simulation of the UCB algorithm
 num_arms = 10  #number of arms
 time_horizon = 100000  #time horizon -> basically how many rounds are we playing in total
-arm_means = np.random.uniform(0, 1, num_arms)
+# arm_means = np.random.uniform(0, 1, num_arms)
+alpha = np.random.randint(1, num_arms+1, num_arms)
+arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0)
 # arm_means = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
 #generate uniformly distributed arm means
 #between 0.1-0.9

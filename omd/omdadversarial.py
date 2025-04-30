@@ -80,17 +80,17 @@ class Adversarial_OMD_Environment: #adversarial omd class
         updated_normalization_factor = normalization_factor
         while True:
             for arm in range(number_of_arms):
-                    inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
-                    exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
-                    weight_of_arm = 4 * exponent_of_inner_product
-                    weights_for_arms[arm] = weight_of_arm
-                    """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
-                    so inner product is 0 and exponent of inner product becomes epsilon^-2 which is a huge number like 1.0e18 and then that huge number times 4
-                    is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
-                    that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
-                    that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
-                    update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
-                    figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
+                inner_product = abs((learning_rate * (estimated_loss_vector[arm] - updated_normalization_factor)))
+                exponent_of_inner_product = math.pow(((inner_product + epsilon)), -2)
+                weight_of_arm = 4 * exponent_of_inner_product
+                weights_for_arms[arm] = weight_of_arm
+                # """very large weights for arms being found -> for example in the first iteration arm 1 has loss of 0 and the normalization factor is 0
+                # so inner product is 0 and exponent of inner product becomes epsilon^-2 which is a huge number like 1.0e18 and then that huge number times 4
+                # is an even bigger number -> having a larger normalization factor does result in a smaller weight like if it was 10 intially then we'd get 400 but 
+                # that still doesn't fix the issue since the weights are supposed to be probablities so it doesn't make sense for it to be greater than 1 (especially by
+                # that much), maybe the calculation of the exponent of the inner product is incorrect? or im not using the correct initial normalization factor
+                # update: i think the code following this part is the issue, because if we had a large normalization factor then we get actual probabilities so need to 
+                # figure out how to fix the until convergence part and also just general issues that could be present in the second part of the algorithm"""
             sum_of_weights = sum(weights_for_arms)
             numerator = sum_of_weights - 1
             sum_of_arms_taken_to_power = 0
@@ -249,15 +249,15 @@ class Adversarial_OMD_Environment: #adversarial omd class
             new_loss_estimate = 0
         #self.estimated_loss_vector[chosen_arm] += loss -> what i previously had because adding the loss estimates would result in either a linear graph or graph with negative regret???
         self.estimated_loss_vector[chosen_arm] += new_loss_estimate
-        """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
-        a super weird looking graph so this line is just temporary, i think the reason it's giving a really weird graph is because of the
-        fact that the weights for arms aren't being found correctly so the losses are either 0 or 1 so this means our new loss estimate is either
-        0 or 1/W_ti (weight of arm) so if the weights for the arms are really huge numbers dividing those huge numbers by 1 gives us super tiny numbers that
-        approach 0 so the estimated losses are always either 0 or a number very very close to 0 (in theory fixing the weights for the arms should also fix
-        this issue i think/i hope)
+        # """this should be self.estimated_loss_vector[chosen_arm] += new_loss_estimate but this returns
+        # a super weird looking graph so this line is just temporary, i think the reason it's giving a really weird graph is because of the
+        # fact that the weights for arms aren't being found correctly so the losses are either 0 or 1 so this means our new loss estimate is either
+        # 0 or 1/W_ti (weight of arm) so if the weights for the arms are really huge numbers dividing those huge numbers by 1 gives us super tiny numbers that
+        # approach 0 so the estimated losses are always either 0 or a number very very close to 0 (in theory fixing the weights for the arms should also fix
+        # this issue i think/i hope)
         
-        update: adding the loss estimates kind of works now! (not the best looking graph but like better than before)
-        """
+        # update: adding the loss estimates kind of works now! (not the best looking graph but like better than before)
+        # """
 
 # learning_rate = 0.005
 # number_of_arms = 10

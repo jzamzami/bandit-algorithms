@@ -70,9 +70,9 @@ learning_rate = 0.005
 
 stochasticOMDEnvironment = stochastic_OMD_Environment(learning_rate, number_of_arms)
 # best_arm = stochasticOMDEnvironment.update_best_arm()
-arm_means = np.random.uniform(0, 1, number_of_arms)
-# alpha = np.random.randint(1, number_of_arms+1, number_of_arms)
-# arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
+# arm_means = np.random.uniform(0, 1, number_of_arms)
+alpha = np.random.randint(1, number_of_arms+1, number_of_arms)
+arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
 # arm_means = stochasticOMDEnvironment.theseAreOurWeights()
 losses_for_arm_in_each_round = []
 regrets = []
@@ -81,7 +81,7 @@ cumulative_optimal_loss = 0
 
 for round_played in range(time_horizon):
     chosen_arm = stochasticOMDEnvironment.selectArm()
-    loss_for_arm = 1 - np.random.binomial(1, arm_means[chosen_arm]) #np.random gives us 0 or 1 based on probability of success
+    loss_for_arm = 1 - np.random.binomial(1, arm_means[chosen_arm]) #np.random gives us 0 or 1 reward based on probability of success
     losses_for_arm_in_each_round.append(loss_for_arm)
     stochasticOMDEnvironment.updateLossVector(chosen_arm, losses_for_arm_in_each_round[round_played])
     optimal_arm = np.argmax(arm_means)
