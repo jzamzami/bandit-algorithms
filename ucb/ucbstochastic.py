@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 def UCB(arm_means, num_arms, time_horizon, delta):
     optimal_arm = np.argmax(arm_means) #best arm is obvi the one with max mean (but the agent
     #doesnt know what it is </3)
-    num_iterations = 30  #number of times we repeat our experiment so its less random
+    num_iterations = 1  #number of times we repeat our experiment so its less random
     regret = np.zeros([time_horizon, num_iterations]) #initialize regret array to be 0 
     #this 2-d array is meant to store the regret for a given time horizon and the number of iterations
 
@@ -32,7 +32,7 @@ def UCB(arm_means, num_arms, time_horizon, delta):
             emp_means[greedy_arm] += (reward - emp_means[greedy_arm]) / num_pulls[greedy_arm]
             #we also need to update the recorded mean of the greedy arm -> this is an important step
             #since the recorded means are what we use to find the ucb and select the best arms
-            ucb[greedy_arm] = emp_means[greedy_arm] + np.sqrt(2 * np.log(1 / delta) / num_pulls[greedy_arm])
+            ucb[greedy_arm] = emp_means[greedy_arm] + np.sqrt( 2 * np.log(1 / delta) / num_pulls[greedy_arm])
             #ucb calculations!
     return regret #need the regret to show the cummulative regret
 
