@@ -76,6 +76,8 @@ losses_for_arm_in_each_round = []
 optimal_arm = np.argmax(arm_means)
 mean_of_optimal_arm = arm_means[optimal_arm]
 
+#need regret to be similar to UCB
+
 def find_regret(time_horizon):
     cumulative_optimal_mean = 0
     cumulative_actual_mean = 0
