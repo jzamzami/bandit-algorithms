@@ -56,27 +56,32 @@ time_horizon = 100000
 learning_rate = 0.005
 #this one is shwya 3bee6 mdri leh
 
-stochasticOMDEnvironment = stochastic_Exp3(learning_rate, n_arms)
-# best_arm = stochasticOMDEnvironment.update_best_arm()
+stochasticEXP3Environment = stochastic_Exp3(learning_rate, n_arms)
+# best_arm = stochasticEXP3Environment.update_best_arm()
 # arm_means = np.random.uniform(0, 1, n_arms)
 alpha = np.random.randint(1, n_arms+1, n_arms)
 arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
-# arm_means = stochasticOMDEnvironment.theseAreOurWeights()
-rewardes_for_arm_in_each_round = []
+# arm_means = stochasticEXP3Environment.theseAreOurWeights()
+rewards_for_arm_in_each_round = []
 regrets = []
-cumulative_reward = 0
-cumulative_optimal_reward = 0
+# cumulative_reward = 0
+# cumulative_optimal_reward = 0
+cumulative_reward_mean = 0
+cumulative_optimal_reward_mean = 0
 
 for round_played in range(time_horizon):
-    chosen_arm = stochasticOMDEnvironment.select_arm()
+    chosen_arm = stochasticEXP3Environment.select_arm()
     reward_for_arm = np.random.binomial(1, arm_means[chosen_arm]) #np.random gives us 0 or 1 reward based on probability of success
-    rewardes_for_arm_in_each_round.append(reward_for_arm)
-    stochasticOMDEnvironment.update(chosen_arm, rewardes_for_arm_in_each_round[round_played])
+    rewards_for_arm_in_each_round.append(reward_for_arm)
+    stochasticEXP3Environment.update(chosen_arm, rewards_for_arm_in_each_round[round_played])
     optimal_arm = np.argmax(arm_means)
-    reward_for_optimal_arm = np.random.binomial(1, arm_means[optimal_arm])
-    cumulative_reward += reward_for_arm
-    cumulative_optimal_reward += reward_for_optimal_arm
-    regret_for_this_round = cumulative_optimal_reward - cumulative_reward
+    # reward_for_optimal_arm = np.random.binomial(1, arm_means[optimal_arm])
+    # cumulative_reward += reward_for_arm
+    # cumulative_optimal_reward += reward_for_optimal_arm
+    # regret_for_this_round = cumulative_optimal_reward - cumulative_reward
+    cumulative_reward_mean += arm_means[chosen_arm]
+    cumulative_optimal_reward_mean += arm_means[optimal_arm]
+    regret_for_this_round = cumulative_optimal_reward_mean - cumulative_reward_mean
     # regret_for_this_round = arm_means[optimal_arm] - arm_means[chosen_arm]
     regrets.append(regret_for_this_round)
     

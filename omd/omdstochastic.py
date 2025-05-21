@@ -95,15 +95,16 @@ def find_regret(time_horizon):
         # cumulative_optimal_mean += loss_for_optimal_arm
         cumulative_actual_mean += mean_of_chosen_arm
         cumulative_optimal_mean += mean_of_optimal_arm
-        # regret_for_this_round = cumulative_actual_mean - cumulative_optimal_mean
+        #regret_for_this_round = cumulative_actual_mean - cumulative_optimal_mean
         regret_for_this_round = cumulative_optimal_mean - cumulative_actual_mean
         # regret_for_this_round = mean_of_optimal_arm - mean_of_chosen_arm
         regrets.append(regret_for_this_round)
     return regrets
 
-regrets = find_regret(time_horizon)
+regrets_to_plot = find_regret(time_horizon)
+# regret_to_plot = np.cumsum(np.mean(regrets, axis=1))
 
-plt.plot(regrets, label='Cumulative Regret')
+plt.plot(regrets_to_plot, label='Cumulative Regret')
 plt.xlabel('Round')
 plt.ylabel('Cumulative Regret')
 plt.title("OMD Stochastic Cumulative Regret")
@@ -111,7 +112,7 @@ plt.legend()
 plt.grid()
 plt.show()
 
-""" 
+"""
 need to be able to keep track of every rounds regrets so we can keep track of the average regrets
 (i dont know how helpful this is):
 1) niba shy zy kida : [[0,1,2,2,0,1], [2,3,4,2,2,3], [4,5,6,6,3,4,5]]

@@ -38,7 +38,7 @@ def UCB(arm_means, num_arms, time_horizon, delta):
 
 #parameters for our simulation of the UCB algorithm
 num_arms = 10  #number of arms
-time_horizon = 100000  #time horizon -> basically how many rounds are we playing in total
+time_horizon = 100  #time horizon -> basically how many rounds are we playing in total
 arm_means = np.random.uniform(0, 1, num_arms)
 # alpha = np.random.randint(1, num_arms+1, num_arms)
 # arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0)
@@ -49,17 +49,19 @@ arm_means = np.random.uniform(0, 1, num_arms)
 delta = 0.005 #tiny exploration parameter -> explore like 10% of the time
 
 #running the algorithm to find the regret for this given simulating
-regret = UCB(arm_means, num_arms, time_horizon, delta)  
+regret = UCB(arm_means, num_arms, time_horizon, delta) 
+print(regret)
+print(np.mean(regret, axis=1))
 
 #finding the cummulative regret in order to graph it
-cumulative_regret = np.cumsum(np.mean(regret, axis=1))
+# cumulative_regret = np.cumsum(np.mean(regret, axis=1))
 
 #generating the graph
-plt.figure(figsize=(10, 6))
-plt.plot(cumulative_regret, label="Cumulative Regret")
-plt.xlabel("Round")
-plt.ylabel("Cumulative Regret")
-plt.title("UCB Stochastic Cumulative Regret")
-plt.legend()
-plt.grid(True)
-plt.show()
+# plt.figure(figsize=(10, 6))
+# plt.plot(cumulative_regret, label="Cumulative Regret")
+# plt.xlabel("Round")
+# plt.ylabel("Cumulative Regret")
+# plt.title("UCB Stochastic Cumulative Regret")
+# plt.legend()
+# plt.grid(True)
+# plt.show()
