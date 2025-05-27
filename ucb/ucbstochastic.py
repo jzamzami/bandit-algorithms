@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 def UCB(arm_means, num_arms, time_horizon, delta):
     optimal_arm = np.argmax(arm_means) #best arm is obvi the one with max mean (but the agent
     #doesnt know what it is </3)
-    num_iterations = 1  #number of times we repeat our experiment so its less random
+    num_iterations = 30  #number of times we repeat our experiment so its less random
     regret = np.zeros([time_horizon, num_iterations]) #initialize regret array to be 0 
     #this 2-d array is meant to store the regret for a given time horizon and the number of iterations
 
@@ -38,7 +38,7 @@ def UCB(arm_means, num_arms, time_horizon, delta):
 
 #parameters for our simulation of the UCB algorithm
 num_arms = 10  #number of arms
-time_horizon = 100  #time horizon -> basically how many rounds are we playing in total
+time_horizon = 100000  #time horizon -> basically how many rounds are we playing in total
 arm_means = np.random.uniform(0, 1, num_arms)
 # alpha = np.random.randint(1, num_arms+1, num_arms)
 # arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0)
@@ -50,18 +50,18 @@ delta = 0.005 #tiny exploration parameter -> explore like 10% of the time
 
 #running the algorithm to find the regret for this given simulating
 regret = UCB(arm_means, num_arms, time_horizon, delta) 
-print(regret)
-print(np.mean(regret, axis=1))
+# print(regret)
+# print(np.mean(regret, axis=1))
 
 #finding the cummulative regret in order to graph it
-# cumulative_regret = np.cumsum(np.mean(regret, axis=1))
+cumulative_regret = np.cumsum(np.mean(regret, axis=1))
 
 #generating the graph
-# plt.figure(figsize=(10, 6))
-# plt.plot(cumulative_regret, label="Cumulative Regret")
-# plt.xlabel("Round")
-# plt.ylabel("Cumulative Regret")
-# plt.title("UCB Stochastic Cumulative Regret")
-# plt.legend()
-# plt.grid(True)
-# plt.show()
+plt.figure(figsize=(10, 6))
+plt.plot(cumulative_regret, label="Cumulative Regret")
+plt.xlabel("Round")
+plt.ylabel("Cumulative Regret")
+plt.title("UCB Stochastic Cumulative Regret")
+plt.legend()
+plt.grid(True)
+plt.show()

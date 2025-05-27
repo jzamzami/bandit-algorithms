@@ -63,18 +63,18 @@ class stochastic_OMD_Environment:
             new_loss_estimate = 0
         self.estimated_loss_vector[chosen_arm] += new_loss_estimate
 
-number_of_arms = 10
-time_horizon = 100000
-learning_rate = 0.005
+# number_of_arms = 10
+# time_horizon = 100000
+# learning_rate = 0.005
 #this one is shwya 3bee6 mdri leh
 
-stochasticOMDEnvironment = stochastic_OMD_Environment(learning_rate, number_of_arms)
-# alpha = np.random.randint(1, number_of_arms+1, number_of_arms)
-# arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
-arm_means = np.random.uniform(0, 1, number_of_arms)
-losses_for_arm_in_each_round = []
-optimal_arm = np.argmax(arm_means)
-mean_of_optimal_arm = 1 - arm_means[optimal_arm]
+# stochasticOMDEnvironment = stochastic_OMD_Environment(learning_rate, number_of_arms)
+# # alpha = np.random.randint(1, number_of_arms+1, number_of_arms)
+# # arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
+# arm_means = np.random.uniform(0, 1, number_of_arms)
+# losses_for_arm_in_each_round = []
+# optimal_arm = np.argmax(arm_means)
+# mean_of_optimal_arm = 1 - arm_means[optimal_arm]
 
 #need regret to be similar to UCB
 
@@ -101,27 +101,35 @@ mean_of_optimal_arm = 1 - arm_means[optimal_arm]
 #         regrets.append(regret_for_this_round)
 #     return regrets
 
+number_of_arms = 10
+time_horizon = 100000
+learning_rate = 0.005
+num_iterations = 1
+
+stochasticOMDEnvironment = stochastic_OMD_Environment(learning_rate, number_of_arms)
+arm_means = np.random.uniform(0, 1, number_of_arms)
+losses_for_arm_in_each_round = []
+optimal_arm = np.argmax(arm_means)
+# mean_of_optimal_arm = 1 - arm_means[optimal_arm]
+mean_of_optimal_arm = arm_means[optimal_arm]
 
 def find_regret(time_horizon):
-    cumulative_optimal_mean = 0
-    cumulative_actual_mean = 0
-    regrets = []
-    for round_played in range(time_horizon):
-        chosen_arm = stochasticOMDEnvironment.selectArm()
-        loss_for_arm = 1 - np.random.binomial(1, arm_means[chosen_arm])
-        mean_of_chosen_arm = 1- arm_means[chosen_arm]
-        losses_for_arm_in_each_round.append(loss_for_arm)
-        stochasticOMDEnvironment.updateLossVector(chosen_arm, losses_for_arm_in_each_round[round_played])
-        cumulative_actual_mean += mean_of_chosen_arm
-        cumulative_optimal_mean += mean_of_optimal_arm
-        regret_for_this_round = cumulative_actual_mean - cumulative_optimal_mean
-        regrets.append(regret_for_this_round)
+    regrets = np.zeros([time_horizon, num_iterations])
+    for iter in range(num_iterations):
+        for round_played in range(time_horizon):
+            chosen_arm = stochasticOMDEnvironment.selectArm()
+            loss_for_arm = 1 - np.random.binomial(1, arm_means[chosen_arm])
+            mean_of_chosen_arm = 1 - arm_means[chosen_arm]
+            losses_for_arm_in_each_round.append(loss_for_arm)
+            stochasticOMDEnvironment.updateLossVector(chosen_arm, losses_for_arm_in_each_round[round_played])
+            regrets[round_played, iter] = mean_of_chosen_arm - mean_of_optimal_arm
     return regrets
 
 regrets_to_plot = find_regret(time_horizon)
+cumulative_regret = np.cumsum(np.mean(regrets_to_plot, axis=1))
 # regret_to_plot = np.cumsum(np.mean(regrets, axis=1))
 
-plt.plot(regrets_to_plot, label='Cumulative Regret')
+plt.plot(cumulative_regret, label='Cumulative Regret')
 plt.xlabel('Round')
 plt.ylabel('Cumulative Regret')
 plt.title("OMD Stochastic Cumulative Regret")

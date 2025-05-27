@@ -58,9 +58,9 @@ learning_rate = 0.005
 
 stochasticEXP3Environment = stochastic_Exp3(learning_rate, n_arms)
 # best_arm = stochasticEXP3Environment.update_best_arm()
-# arm_means = np.random.uniform(0, 1, n_arms)
-alpha = np.random.randint(1, n_arms+1, n_arms)
-arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
+arm_means = np.random.uniform(0, 1, n_arms)
+# alpha = np.random.randint(1, n_arms+1, n_arms)
+# arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0) #stolen from github, idk if this is better than just using a uniform distribution for the means
 # arm_means = stochasticEXP3Environment.theseAreOurWeights()
 rewards_for_arm_in_each_round = []
 regrets = []
