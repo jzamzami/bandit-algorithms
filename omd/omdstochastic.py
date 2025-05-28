@@ -110,10 +110,9 @@ stochasticOMDEnvironment = stochastic_OMD_Environment(learning_rate, number_of_a
 arm_means = np.random.uniform(0, 1, number_of_arms)
 losses_for_arm_in_each_round = []
 optimal_arm = np.argmax(arm_means)
-# mean_of_optimal_arm = 1 - arm_means[optimal_arm]
-mean_of_optimal_arm = arm_means[optimal_arm]
+mean_of_optimal_arm = 1 - arm_means[optimal_arm]
 
-def find_regret(time_horizon):
+def find_regret(time_horizon, num_iterations):
     regrets = np.zeros([time_horizon, num_iterations])
     for iter in range(num_iterations):
         for round_played in range(time_horizon):
@@ -125,9 +124,8 @@ def find_regret(time_horizon):
             regrets[round_played, iter] = mean_of_chosen_arm - mean_of_optimal_arm
     return regrets
 
-regrets_to_plot = find_regret(time_horizon)
+regrets_to_plot = find_regret(time_horizon, num_iterations)
 cumulative_regret = np.cumsum(np.mean(regrets_to_plot, axis=1))
-# regret_to_plot = np.cumsum(np.mean(regrets, axis=1))
 
 plt.plot(cumulative_regret, label='Cumulative Regret')
 plt.xlabel('Round')
