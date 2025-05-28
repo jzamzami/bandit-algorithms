@@ -6,7 +6,7 @@ import numpy as np
 class stochastic_OMD_Environment:
     def __init__(self, learning_rate, number_of_arms):
         self.learning_rate = learning_rate
-        self.normalization_factor = 200*math.sqrt(10)
+        self.normalization_factor = 200 * math.sqrt(10)
         self.estimated_loss_vector = np.zeros(number_of_arms)
         self.number_of_arms = number_of_arms
     
