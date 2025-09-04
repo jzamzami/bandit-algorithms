@@ -65,3 +65,5 @@ plt.title("UCB Stochastic Cumulative Regret")
 plt.legend()
 plt.grid(True)
 plt.show()
+
+#im still alive
