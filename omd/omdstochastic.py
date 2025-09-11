@@ -110,6 +110,7 @@ stochasticOMDEnvironment = stochastic_OMD_Environment(learning_rate, number_of_a
 arm_means = np.random.uniform(0, 1, number_of_arms)
 losses_for_arm_in_each_round = []
 optimal_arm = np.argmax(arm_means)
+#loss_for_optimal_arm = 1 - np.random.binomial(1, optimal_arm)
 mean_of_optimal_arm = 1 - arm_means[optimal_arm]
 
 def find_regret(time_horizon, num_iterations):

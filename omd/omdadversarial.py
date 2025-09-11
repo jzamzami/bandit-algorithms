@@ -284,7 +284,7 @@ learning_rate = 0.005
 
 adversarialOMDEnvironment = Adversarial_OMD_Environment(learning_rate, number_of_arms)
 
-losses_for_all_rounds = np.zeros((time_horizon, number_of_arms))
+losses_for_all_rounds = np.zeros((time_horizon, number_of_arms)) #array of arrays for ALL loses in ALL rounds
 for round_played in range(time_horizon):
     losses_for_each_round = np.zeros(number_of_arms)
     best_arm = adversarialOMDEnvironment.update_best_arm()
@@ -295,14 +295,14 @@ for round_played in range(time_horizon):
         else:
             loss_of_arm += 1
         losses_for_each_round[arm] = loss_of_arm
-    losses_for_all_rounds[round_played] = losses_for_each_round
+    losses_for_all_rounds[round_played] = losses_for_each_round #array of losses stored for each round
     
 best_arms_in_each_round = []
 for loss_vector in range(len(losses_for_all_rounds)):
-    best_arm_in_this_round = np.argmin(losses_for_all_rounds[loss_vector])
+    best_arm_in_this_round = np.argmin(losses_for_all_rounds[loss_vector]) #index of minimum value
     best_arms_in_each_round.append(best_arm_in_this_round)
-frequency_of_each_best_arm = np.bincount(best_arms_in_each_round)
-optimal_arm = np.argmax(frequency_of_each_best_arm)
+frequency_of_each_best_arm = np.bincount(best_arms_in_each_round) #finds the frequency of each arm
+optimal_arm = np.argmax(frequency_of_each_best_arm) #optimal arm is arm thta appears the most
 
 cumulative_optimal_loss = 0
 cumulative_loss = 0
