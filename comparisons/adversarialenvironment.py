@@ -179,13 +179,51 @@ for round_loss_vector in range(len(losses_for_all_rounds)):
     cumulative_loss += actual_loss
     regret_for_this_round = cumulative_loss - cumulative_optimal_loss
     regrets.append(regret_for_this_round)
+    
+def UCB(arm_means, num_arms, time_horizon, delta):
+    optimal_arm = np.argmax(arm_means)
+    num_iterations = 1
+    regret = np.zeros([time_horizon, num_iterations])
+
+    for iter in range(num_iterations):
+        ucb = 100 * np.ones(num_arms)
+        emp_means = np.zeros(num_arms)
+        num_pulls = np.zeros(num_arms)
+        for round in range(time_horizon):
+            greedy_arm = np.argmax(ucb)
+            reward = np.random.binomial(1, arm_means[greedy_arm])
+            num_pulls[greedy_arm] += 1
+            regret[round, iter] = arm_means[optimal_arm] - arm_means[greedy_arm]
+            emp_means[greedy_arm] += (reward - emp_means[greedy_arm]) / num_pulls[greedy_arm]
+            ucb[greedy_arm] = emp_means[greedy_arm] + np.sqrt(2 * np.log(1 / delta) / num_pulls[greedy_arm])
+    return regret
+
+num_arms = 10
+time_horizon = 1000
+delta = 0.005
+means_of_arms_in_specific_round = []
+total_regret = 0
+
+for round in range(time_horizon):
+    # arm_means = np.random.uniform(0, 1, num_arms)
+    alpha = np.random.randint(1, num_arms+1, num_arms)
+    arm_means = np.random.dirichlet(alpha, size = 1).squeeze(0)
+    means_of_arms_in_specific_round.append(arm_means)
+    # mean_of_arms_in_this_round =
+    # print(means_of_arms_in_specific_round[round])
+    regret = UCB(means_of_arms_in_specific_round[round], num_arms, time_horizon, delta)
+    total_regret += regret
+
+# cumulative_regret = np.cumsum(np.mean(regret, axis=1))
+ucb_cumulative_regret = np.cumsum(np.mean(total_regret, axis=1))
 
 plt.figure(figsize=(10, 6))
 plt.plot(exp3_regrets, label="Exp3 Cumulative Regret", color = "red")
-plt.plot(regrets, label="OMD Cumulative Regret", color = "blue")
+plt.plot(regrets, label="OMD Cumulative Regret", color = "green")
+plt.plot(ucb_cumulative_regret, label="UCB Cumulative Regret", color = "blue")
 plt.xlabel("Round")
 plt.ylabel("Cumulative Regret")
-plt.title("Exp3 vs OMD Adversarial Cumulative Regret")
+plt.title("UCB vs Exp3 vs OMD Adversarial Cumulative Regret")
 plt.legend()
 plt.grid(True)
 plt.show()
